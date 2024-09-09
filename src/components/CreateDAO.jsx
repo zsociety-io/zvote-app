@@ -148,7 +148,7 @@ const CreateDAO = (props) => {
                             {creatorType === 'definedList' && (
                                 <TextField
                                     margin="normal"
-                                    label="Who can update the list?"
+                                    label="Who can update this list?"
                                     select
                                     SelectProps={{ native: true }}
                                     variant="outlined"
