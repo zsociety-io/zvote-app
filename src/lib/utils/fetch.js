@@ -1,9 +1,9 @@
-//import * as $fs from 'node:fs';
+import * as $fs from 'node:fs';
 import $mime from 'mime-lite';
 // import { Response } from "node-fetch";
 
-//const oldFetch = globalThis.fetch;
-// globalThis.Response = Response;
+const oldFetch = globalThis.fetch;
+globalThis.Response = Response;
 
 // We always polyfill fetch because Node's fetch doesn't support file URLs.
 
@@ -11,8 +11,7 @@ globalThis.fetch = async function (resource, options) {
   const url = resource.href ? new URL(resource.href) : resource;
 
   if (url.protocol === 'file:') {
-    /*
-    //const readStream = $fs.createReadStream(url);
+    const readStream = $fs.createReadStream(url);
 
     const headers = {};
 
@@ -29,7 +28,6 @@ globalThis.fetch = async function (resource, options) {
     });
 
     return result;
-    */
   } else {
     return await oldFetch(resource, options);
   }

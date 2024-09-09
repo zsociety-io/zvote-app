@@ -10,7 +10,7 @@ import {
   random_b64
 } from "@/lib/utils/crypto";
 
-import { set_cookie, get_cookie } from "@/lib/utils/cookies";
+import { set_cookie, get_cookie, delete_cookie } from "@/lib/utils/cookies";
 
 
 
@@ -76,7 +76,7 @@ export async function isSessionTokenValid(sessionToken, address) {
     const tok = await dynamodb_get(process.env.AWS_DYNAMO_DB_SESSIONS_TABLE, { address });
     return (tok != null && timing_safe_equal(tok.session_token, sessionToken))
   } catch (e) {
-    console.log(e);
+    console.log(e)
   }
 }
 
@@ -88,6 +88,21 @@ export async function get_session({ req, res }, publicKey) {
     throw "Invalid session."
   }
 
+  return { publicKey, session_token };
+}
+
+
+
+export async function delete_session({ req, res }, publicKey) {
+  let session_token = get_cookie('session_token', req, res)
+
+  if (!session_token || !(await isSessionTokenValid(session_token, publicKey))) {
+    throw "Invalid session."
+  }
+  await dynamodb_delete(
+    process.env.AWS_DYNAMO_DB_SESSIONS_TABLE, { address: publicKey }
+  );
+  delete_cookie('session_token', req, res)
   return { publicKey, session_token };
 }
 

@@ -2,7 +2,7 @@ import {
   Transaction,
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
-import { random_from_type, } from "@/lib/aleo/index.js";
+import { random_from_type, } from "@/lib/aleo/front.js";
 
 
 export const createDao = async (
@@ -33,6 +33,9 @@ export const createDao = async (
     dao_manager_updater,
     voting_system_manager,
   ];
+
+
+  console.log(parsedInputs)
   if (!no_approval_required) {
     parsedInputs.push(
       proposal_manager

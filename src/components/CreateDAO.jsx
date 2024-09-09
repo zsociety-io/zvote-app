@@ -15,8 +15,8 @@ import {
     Box,
     InputAdornment,
 } from '@mui/material';
-
-//import { ZERO_ADDRESS, programIdToAddress, hashStruct } from "@/lib/aleo/node-sdk";
+import Image from "next/image";
+import { ZERO_ADDRESS, programIdToAddress, hashStruct, loadProgramAddresses } from "lib/aleo/front";
 
 import { createDao } from "@/lib/adapter/index.js"
 import swal from 'sweetalert';
@@ -74,21 +74,29 @@ const CreateDAO = (props) => {
         }
         setIsCreateLoading(true);
         try {
+            await loadProgramAddresses([
+                "vs__2_candidates.aleo",
+                "daomu__dao_based.aleo",
+                "vsm__dao_based_nar.aleo",
+                "vsm__dao_based_apl.aleo",
+                "psm__dao_based.aleo"
+            ]);
+
             const voting_system =
-                (votingSystem === "yesNo") ? programIdToAddress("vs__2_candidates.aleo") : customVotingSystem;
+                (votingSystem === "yesNo") ? await programIdToAddress("vs__2_candidates.aleo") : customVotingSystem;
             const dao_manager_updater = (canUpdateDao === 'noone') ?
                 ZERO_ADDRESS :
                 (canUpdateDao === 'admin') ?
                     publicKey :
-                    programIdToAddress("daomu__dao_based.aleo")
+                    await programIdToAddress("daomu__dao_based.aleo")
                 ;
             const voting_system_manager = (canVSUpdateList === 'noone') ?
                 ZERO_ADDRESS :
                 (canVSUpdateList === 'admin') ?
                     publicKey :
                     (creatorType === 'anyoone') ?
-                        programIdToAddress("vsm__dao_based_nar.aleo") :
-                        programIdToAddress("vsm__dao_based_apl.aleo")
+                        await programIdToAddress("vsm__dao_based_nar.aleo") :
+                        await programIdToAddress("vsm__dao_based_apl.aleo")
                 ;
 
             const voting_system_params = (votingSystem === "yesNo") ? `{quorum: ${quorum}u128}` : votingSystemParams;
@@ -97,11 +105,11 @@ const CreateDAO = (props) => {
                 governanceTokenID,
                 requestTransaction,
                 voting_system,
-                hashStruct(voting_system_params),
+                await hashStruct(voting_system_params),
                 dao_manager_updater,
                 voting_system_manager,
                 creatorType === "anyone",
-                creatorType === "admin" ? publicKey : programIdToAddress("psm__dao_based.aleo")
+                creatorType === "admin" ? publicKey : await programIdToAddress("psm__dao_based.aleo")
             );
             swal("Success", "DAO transaction was just submitted, check you wallet history.", "success");
             setQuorum("");
@@ -249,7 +257,7 @@ const CreateDAO = (props) => {
 
                         {/* Submit Button */}
                         <Button style={{ borderRadius: "50px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            {isCreateLoading ? (<img width={20} src={require("../img/loader-loading.gif").default} alt="wallet" id="wallet_img" />) : "Create"}
+                            {isCreateLoading ? (<Image width={20} src={require("../img/loader-loading.gif").default} alt="wallet" id="wallet_img" />) : "Create"}
                         </Button>
                     </Box>
                 </Grow>

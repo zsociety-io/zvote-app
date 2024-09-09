@@ -21,7 +21,7 @@ export function useConnected() {
     const [sessionIdCookie, setSessionIdCookie, removeSessionIdCookie] = useCookie('session_id', '');
 
     const logOut = async () => {
-        await get_request('/api/session/destroy?address=' + publicKey);
+        await get_request('/api/session/destroy/' + publicKey);
         setConnected(false);
         removeWalletCookie();
         removeSessionIdCookie();

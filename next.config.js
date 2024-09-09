@@ -3,11 +3,18 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.experiments = {
-      ...config.experiments,
-      topLevelAwait: true, // Enable top-level await
+      asyncWebAssembly: true,
+      syncWebAssembly: true,
+      layers: true,
     };
+
+    // fix warnings for async functions in the browser (https://github.com/vercel/next.js/issues/64792)
+    if (!isServer) {
+      config.output.environment = { ...config.output.environment, asyncFunction: true };
+    }
+
     return config;
   },
 };
