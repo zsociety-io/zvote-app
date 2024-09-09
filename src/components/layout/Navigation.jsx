@@ -20,6 +20,7 @@ function Navigation({ loginRefreshRef }) {
       }
 
       const scrollToTopButton = document.getElementById("scrollToTop");
+
       if (scrollToTopButton) {
         if (scrollTop > 300) {
           scrollToTopButton.style.display = "block";
