@@ -113,7 +113,7 @@ const CreateDAO = (props) => {
                 creatorType === "anyone",
                 creatorType === "admin" ? publicKey : await programIdToAddress("psm__dao_based.aleo")
             );
-            swal("Success", "DAO transaction was just submitted, check you wallet history.", "success");
+            swal("Success", "DAO transaction was just submitted, check your wallet history.", "success");
             setQuorum("");
             setVotingSystem('yesNo');
             setVotingSystemParams('');
