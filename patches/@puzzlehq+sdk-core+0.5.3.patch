@@ -1,0 +1,41 @@
+diff --git a/node_modules/@puzzlehq/sdk-core/dist/src/client.js b/node_modules/@puzzlehq/sdk-core/dist/src/client.js
+index 45586b6..6292752 100644
+--- a/node_modules/@puzzlehq/sdk-core/dist/src/client.js
++++ b/node_modules/@puzzlehq/sdk-core/dist/src/client.js
+@@ -1,7 +1,8 @@
+ import { WalletConnectModalSign } from '@puzzlehq/walletconnect-modal-sign-html';
+ import { projectId as puzzleProjectId, web3modal_puzzle_props, } from './data/walletconnect.js';
+ import EventEmitter from 'events';
+-import pkg from '../package.json';
++const pkg = await import('../package.json', { assert: { type: 'json' } });
++
+ import { getSdkError } from '@walletconnect/utils';
+ export const emitter = new EventEmitter();
+ export let connection = undefined;
+diff --git a/node_modules/@puzzlehq/sdk-core/package.json b/node_modules/@puzzlehq/sdk-core/package.json
+index 4006295..0c0de18 100644
+--- a/node_modules/@puzzlehq/sdk-core/package.json
++++ b/node_modules/@puzzlehq/sdk-core/package.json
+@@ -12,7 +12,6 @@
+       "types": "./dist/src/index.d.ts"
+     }
+   },
+-  "type": "module",
+   "scripts": {
+     "fetch-fix": "find dist -type f \\( -name '*.js' -o -name '*.cjs' \\) -exec sed -i '' 's/self.fetch[[:space:]]*||/fetch ||/g' {} \\;",
+     "ws-fix": "find ./dist -type f -name 'index*' -exec sed -i '' -e 's/require(\\\"ws\\\")/(() => {try { return require(\\\"ws\\\") } catch (e) { } })()/g' {} +;",
+diff --git a/node_modules/@puzzlehq/sdk-core/src/client.ts b/node_modules/@puzzlehq/sdk-core/src/client.ts
+index b138da4..04a40f4 100644
+--- a/node_modules/@puzzlehq/sdk-core/src/client.ts
++++ b/node_modules/@puzzlehq/sdk-core/src/client.ts
+@@ -4,7 +4,9 @@ import {
+   web3modal_puzzle_props,
+ } from './data/walletconnect.js';
+ import EventEmitter from 'events';
+-import pkg from '../package.json';
++
++const pkg = await import('../package.json', { assert: { type: 'json' } });
++
+ import { getSdkError } from '@walletconnect/utils';
+ import { SessionTypes } from '@walletconnect/types';
+ 

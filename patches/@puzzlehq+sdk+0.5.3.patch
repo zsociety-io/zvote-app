@@ -1,0 +1,12 @@
+diff --git a/node_modules/@puzzlehq/sdk/package.json b/node_modules/@puzzlehq/sdk/package.json
+index c963add..85346f4 100644
+--- a/node_modules/@puzzlehq/sdk/package.json
++++ b/node_modules/@puzzlehq/sdk/package.json
+@@ -11,7 +11,6 @@
+       "types": "./dist/src/index.d.ts"
+     }
+   },
+-  "type": "module",
+   "scripts": {
+     "fetch-fix": "find dist -type f \\( -name '*.js' -o -name '*.cjs' \\) -exec sed -i '' 's/self.fetch[[:space:]]*||/fetch ||/g' {} \\;",
+     "ws-fix": "find ./dist -type f -name 'index*' -exec sed -i '' -e 's/require(\\\"ws\\\")/(() => {try { return require(\\\"ws\\\") } catch (e) { } })()/g' {} +;",

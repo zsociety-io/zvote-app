@@ -1,0 +1,65 @@
+body {
+  display: table;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+div#root {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.alignCenter {
+  text-align: center !important;
+}
+
+.verifContainer {
+  margin: auto;
+  text-align: center;
+  width: fit-content;
+}
+
+.fitContentWidth {
+  width: fit-content;
+}
+
+#cadasollogo {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+}
+
+.alignCenter p {
+  text-align: left !important;
+  width: fit-content;
+  margin: auto;
+  margin-bottom: 20px;
+}
+
+.redText {
+  color: red;
+}
+
+#countdown_time {
+  width: fit-content;
+  margin: auto;
+  font-size: 30px;
+  font-family: Lekton;
+  margin-top: 10px;
+  color: #1f75ea;
+}
+
+.lighterText {
+  font-weight: 400;
+}
+
+.greenText {
+  color: #1fcf1f;
+}
+
+#wallet_img {
+  height: 25px;
+}
