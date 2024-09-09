@@ -15,7 +15,9 @@ import {
     Box,
     InputAdornment,
 } from '@mui/material';
+
 import Image from "next/image";
+
 import { ZERO_ADDRESS, programIdToAddress, hashStruct, loadProgramAddresses } from "lib/aleo/front";
 
 import { createDao } from "@/lib/adapter/index.js"
