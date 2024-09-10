@@ -11,6 +11,17 @@ export const decryptPermission = null;
 export const network = null;
 export const programs = [];
 
+const frontCookieOptions = {
+    // days?: number;
+    // path?: string;
+    domain: (process.env.NODE_ENV === 'production') ?
+        `.${process.env.NEXT_PUBLIC_DOMAIN}` :
+        '',// domain?: string;
+    // SameSite?: 'None' | 'Lax' | 'Strict';
+    // Secure?: boolean;
+    // HttpOnly?: boolean;
+}
+
 
 export function useConnected() {
     const { wallets, select, connect, publicKey, disconnect, wallet, connecting } = useWallet();

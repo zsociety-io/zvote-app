@@ -36,6 +36,17 @@ const existingWallets = {
     }
 };
 
+const frontCookieOptions = {
+    // days?: number;
+    // path?: string;
+    domain: (process.env.NODE_ENV === 'production') ?
+        `.${process.env.NEXT_PUBLIC_DOMAIN}` :
+        '',// domain?: string;
+    // SameSite?: 'None' | 'Lax' | 'Strict';
+    // Secure?: boolean;
+    // HttpOnly?: boolean;
+}
+
 const walletButtons = {
     cancel: false,
     ...Object.fromEntries(
@@ -110,8 +121,8 @@ function ConnectBtn(props) {
             };
             const signedMessageStr = encodeURIComponent(JSON.stringify(signedMessage));
             const reponseBackEndGenerateSessionToken = await get_request(`/api/session/create/${signedMessageStr}`);
-            setWalletCookie(selectedWallet);
-            setSessionIdCookie(reponseBackEndGenerateSessionToken.session_id);
+            setWalletCookie(selectedWallet, frontCookieOptions);
+            setSessionIdCookie(Math.floor(Math.random() * 1e10), frontCookieOptions);
             setConnected(true);
             swal("Success", "You are connected.", "success");
             if (props?.loginRefreshRef?.current) {

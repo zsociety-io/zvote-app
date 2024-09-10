@@ -7,50 +7,6 @@ async function submitFormLink(event) {
   document.getElementById('contactForm').submit();
 }
 
-async function contactFormSubmit(event) {
-  event.preventDefault();
-  if (window.submitContactInProcess) {
-    return
-  }
-  window.submitContactInProcess = true;
-  try {
-    window.eventC = event;
-    const contact_name_input = document.getElementById("contact_name")
-    const contact_email_input = document.getElementById("contact_email")
-    const contact_message_input = document.getElementById("contact_message")
-    $('#submit_contact_form').html('<img src="loader-loading.gif" alt="wallet" id="contact_form_load_img"/>')
-
-    const reqBody = JSON.stringify({
-      name: contact_name_input.value,
-      email: contact_email_input.value,
-      message: contact_message_input.value,
-    });
-
-    const rawresponse = await fetch('#', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: reqBody
-    }).then((response) => response.json())
-
-    if (rawresponse.status == "success") {
-      // Si succes
-      contact_name_input.value = "";
-      contact_email_input.value = "";
-      contact_message_input.value = "";
-      $('#submit_contact_form').html('Submit')
-      swal("Success", "Your message was submitted. We will answer you as soon as possible.", "success");
-    } else {
-      swal("Error", "Could not submit your message. Use: contact@zvote.io instead.", "error");
-    }
-  } catch (e) {
-    console.log(e)
-  }
-  window.submitContactInProcess = false;
-  $('#submit_contact_form').html('Submit')
-}
 
 function ContactForm() {
   return (

@@ -19,9 +19,9 @@ function Profile({ loginRefreshRef }) {
     forceUpdate(); // This forces a re-render
   };
 
-  if (loginRefreshRef?.current)
+  if (loginRefreshRef?.current) {
     loginRefreshRef.current = forceUpdatePush;
-
+  }
   const { connected, loading, setConnected, logOut } = useConnected();
   const { publicKey } = useWallet();
 

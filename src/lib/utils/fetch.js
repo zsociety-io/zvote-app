@@ -3,10 +3,9 @@ import $mime from 'mime-lite';
 // import { Response } from "node-fetch";
 
 const oldFetch = globalThis.fetch;
-globalThis.Response = Response;
+// globalThis.Response = Response;
 
 // We always polyfill fetch because Node's fetch doesn't support file URLs.
-
 globalThis.fetch = async function (resource, options) {
   const url = resource.href ? new URL(resource.href) : resource;
 
