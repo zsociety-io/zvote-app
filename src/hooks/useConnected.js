@@ -67,7 +67,6 @@ export function useConnected() {
             removeWalletCookie();
         }
         setConnected(false);
-        //setLoading(false);
     }
 
     useEffect(
@@ -83,7 +82,6 @@ export function useConnected() {
             if (wallet) {
                 autoConnect();
             }
-            //setLoading(false);
         },
         [select, walletCookie, sessionIdCookie, publicKey, wallet]
     );
