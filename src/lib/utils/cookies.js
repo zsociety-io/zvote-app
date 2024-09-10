@@ -61,5 +61,12 @@ export function delete_cookie(key, req, res) {
 
 
 export function get_cookie(key, req, res) {
-  return getCookie(key, { req, res });
+  return getCookie(key, {
+    req, res,
+    domain: (
+      (process.env.NODE_ENV === "production")
+        ? `.${process.env.NEXT_PUBLIC_HOST}`
+        : null
+    )
+  });
 }
