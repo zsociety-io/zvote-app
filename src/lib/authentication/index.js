@@ -83,10 +83,12 @@ export async function isSessionTokenValid(sessionToken, address) {
 
 export async function get_session({ req, res }, publicKey) {
   let session_token = get_cookie('session_token', req, res)
-  console.log({ session_token });
 
   if (!session_token || !(await isSessionTokenValid(session_token, publicKey))) {
-    throw session_token + ""
+    try {
+      delete_cookie('session_token', req, res)
+    } catch (e) { }
+    throw "Invalid session."
   }
 
   return { publicKey, session_token };
