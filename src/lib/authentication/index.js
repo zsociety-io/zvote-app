@@ -86,7 +86,7 @@ export async function get_session({ req, res }, publicKey) {
   console.log({ session_token });
 
   if (!session_token || !(await isSessionTokenValid(session_token, publicKey))) {
-    throw "Invalid session."
+    throw session_token + ""
   }
 
   return { publicKey, session_token };
