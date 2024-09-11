@@ -16,7 +16,7 @@ export const createDao = async (
   no_approval_required,
   proposal_manager
 ) => {
-  const programId = "zvote_dao_factory_001.aleo";
+  const programId = process.env.NEXT_PUBLIC_DAO_FACTORY_PROGRAM_ID;
   const functionName = no_approval_required ?
     'register_any_proposer_dao' :
     'register_proposer_list_dao';

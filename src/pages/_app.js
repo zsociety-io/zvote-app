@@ -61,7 +61,7 @@ function App({ Component, pageProps }) {
       network={WalletAdapterNetwork.TestnetBeta}
       decryptPermission={DecryptPermission.OnChainHistory}
       programs={[
-        'credits.aleo',
+        process.env.NEXT_PUBLIC_CREDITS_PROGRAM_ID,
       ]}
       autoConnect
     >

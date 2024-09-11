@@ -4,8 +4,8 @@ import { programIdToAddress } from "@/lib/aleo";
 
 
 const daoManagerPrograms = [
-  process.env.DAOM_APL_PROGRAM_ID,
-  process.env.DAOM_NAR_PROGRAM_ID
+  process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID,
+  process.env.NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID
 ];
 
 export const daoManagers = Object.fromEntries(
@@ -18,35 +18,45 @@ export const daoManagers = Object.fromEntries(
 
 
 export const getAddressDaos = async (publicKey) => {
-  const dao_mapping_values = await getAllDaos();
-  const daos = dao_mapping_values.map(
-    ({ key, value }) => ({
-      ...JSON.parse(formatAleoString(value)),
-      dao_key_hash: key
-    })
-  );
-  await Promise.all()
+  const daos = await getAllDaos();
   console.log(daos)
 }
 
 
 export const getAllDaos = async () => {
   const dao_mapping_values = await listProgramMappingValues(
-    process.env.MDSP_PROGRAM_ID,
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
     "daos"
   );
-  const other_mapping_values = await listProgramMappingValues(
-    process.env.MDSP_PROGRAM_ID,
-    "..."
+  const voting_system_mapping_values = await listProgramMappingValues(
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+    "voting_systems"
   );
-  const daos = dao_mapping_values.map(
-    ({ key, value }) => ({
-      ...JSON.parse(formatAleoString(value)),
-      dao_key_hash: key,
-    })
+  const daos = Object.fromEntries(
+    dao_mapping_values.map(
+      ({ key, value }) => ([
+        key, {
+          ...JSON.parse(formatAleoString(value)),
+          dao_key_hash: key,
+        }
+      ])
+    )
   );
-  const loadedDaos = await Promise.all(daos.map(loadDao));
-  return loadedDaos;
+  const voting_systems = Object.fromEntries(
+    voting_system_mapping_values.map(
+      ({ key, value }) => ([
+        key, {
+          ...JSON.parse(formatAleoString(value)),
+          voting_system_key_hash: key,
+
+        }
+      ])
+    )
+  );
+  console.log(daos)
+  console.log(voting_systems)
+  await Promise.all(daos.map(loadDao));
+  return daos;
 }
 
 /*
@@ -65,9 +75,10 @@ export const loadDao = async (dao) => {
   if (manager == null) {
     return dao;
   }
-  if (manager === process.env.DAOM_APL_PROGRAM_ID) {
+  if (manager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID) {
     await loadAPLDao(dao);
   }
+  return dao;
 }
 
 

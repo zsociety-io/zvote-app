@@ -77,28 +77,28 @@ const CreateDAO = (props) => {
         setIsCreateLoading(true);
         try {
             await loadProgramAddresses([
-                "vs__2_candidates.aleo",
-                "daomu__dao_based.aleo",
-                "vsm__dao_based_nar.aleo",
-                "vsm__dao_based_apl.aleo",
-                "psm__dao_based.aleo"
+                process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
             ]);
 
             const voting_system =
-                (votingSystem === "yesNo") ? await programIdToAddress("vs__2_candidates.aleo") : customVotingSystem;
+                (votingSystem === "yesNo") ? await programIdToAddress(process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID) : customVotingSystem;
             const dao_manager_updater = (canUpdateDao === 'noone') ?
                 ZERO_ADDRESS :
                 (canUpdateDao === 'admin') ?
                     publicKey :
-                    await programIdToAddress("daomu__dao_based.aleo")
+                    await programIdToAddress(process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID)
                 ;
             const voting_system_manager = (canVSUpdateList === 'noone') ?
                 ZERO_ADDRESS :
                 (canVSUpdateList === 'admin') ?
                     publicKey :
                     (creatorType === 'anyoone') ?
-                        await programIdToAddress("vsm__dao_based_nar.aleo") :
-                        await programIdToAddress("vsm__dao_based_apl.aleo")
+                        await programIdToAddress(process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID) :
+                        await programIdToAddress(process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID)
                 ;
 
             const voting_system_params = (votingSystem === "yesNo") ? `{quorum: ${quorum}u128}` : votingSystemParams;
@@ -111,7 +111,7 @@ const CreateDAO = (props) => {
                 dao_manager_updater,
                 voting_system_manager,
                 creatorType === "anyone",
-                creatorType === "admin" ? publicKey : await programIdToAddress("psm__dao_based.aleo")
+                creatorType === "admin" ? publicKey : await programIdToAddress(process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID)
             );
             swal("Success", "DAO transaction was just submitted, check your wallet history.", "success");
             setQuorum("");
