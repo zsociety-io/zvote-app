@@ -12,7 +12,6 @@ export const programIdToAddress = async (programId) => {
   programAddresses[programId] = (await get_request(
     `/api/contract/address/${programId}`
   )).address;
-  console.log({ addr: programAddresses[programId] })
   return programAddresses[programId];
 }
 

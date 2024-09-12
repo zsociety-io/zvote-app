@@ -5,6 +5,7 @@ import React, { useRef, useEffect, useState, useReducer } from "react";
 import { useConnected, decryptPermission, network, programs } from '@/hooks/useConnected';
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import CreateDAO from "@/components/CreateDAO.jsx"
+import DAOList from "@/components/DAOList.jsx"
 import Image from "next/image"
 
 
@@ -71,8 +72,9 @@ function Profile({ loginRefreshRef }) {
         <section className="bot-area less_padding_top_bot">
           {(daos.length === 0) && (<div className="container">
             {/*
-            <AddBotBtn />
+              <AddBotBtn />
             */}
+            <DAOList />
             <CreateDAO />
           </div>)}
 

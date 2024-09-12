@@ -35,7 +35,6 @@ export const createDao = async (
   ];
 
 
-  console.log(parsedInputs)
   if (!no_approval_required) {
     parsedInputs.push(
       proposal_manager

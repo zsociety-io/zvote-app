@@ -6,7 +6,7 @@ import { WalletAdapterNetwork, WalletReadyState } from '@demox-labs/aleo-wallet-
 
 import { useConnected, decryptPermission, network, programs } from '../../hooks/useConnected.js';
 import useCookie from 'react-use-cookie';
-import { get_request } from '../../lib/utils/network.js';
+import { get_request } from '@/lib/utils/network.js';
 
 import swal from 'sweetalert';
 
@@ -106,14 +106,11 @@ function ConnectBtn(props) {
 
     const connectSemiDapp = async () => {
         try {
-            console.log("done")
             const handshake_token = await get_request(`/api/session/handshake/${publicKey}`);
             const message = prepareSignedMessage(handshake_token.token, handshake_token.time);
             const signature = await signMessage(
                 new TextEncoder().encode(message)
             );
-            console.log(signature)
-            console.log(new TextDecoder().decode(signature))
             const signedMessage = {
                 message,
                 signature: new TextDecoder().decode(signature),

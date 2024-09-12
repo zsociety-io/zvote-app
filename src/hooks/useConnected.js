@@ -45,7 +45,6 @@ export function useConnected() {
     );
 
     const checkConnected = async () => {
-        console.log("check")
         let success = false;
         try {
             let resp = await get_request(`/api/session/${publicKey}`);

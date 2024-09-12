@@ -1,6 +1,6 @@
 
 import { Program, Plaintext } from "@/lib/aleo/node-sdk";
-
+import { getMappingValue } from "lib/aleo/aleoscan";
 
 
 export const snarkvmNetworks = {
@@ -27,8 +27,18 @@ export const hashStruct = (toHash) => {
   return Plaintext.fromString(
     snarkvmNetworks?.[process.env.NEXT_PUBLIC_NETWORK],
     toHash
-  ).hashBhp256()
+  ).hashBhp256();
 };
+
+
+export const getUserBalance = async (token_id, publicKey) => {
+  const tokenOwner = `{account: ${publicKey}, token_id: ${token_id}}`;
+  return await getMappingValue(
+    process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+    "authorized_balances",
+    hashStruct(tokenOwner),
+  );
+}
 
 
 export const formatAleoString = (aleoString) => {

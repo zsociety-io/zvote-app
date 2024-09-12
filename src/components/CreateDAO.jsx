@@ -54,18 +54,18 @@ const CreateDAO = (props) => {
     const [canUpdateDao, setCanUpdateDao] = useState('noone');
     const [governanceTokenID, setGovernanceTokenID] = useState('');
     const [customVotingSystem, setCustomVotingSystem] = useState('');
+    const [proposersUpdater, setProposersUpdater] = useState('admin');
 
     const [isCreateLoading, setIsCreateLoading, refIsCreateLoading] = useState(false);
 
     const handleVotingSystemChange = () => {
-        // Toggle between 'yesNo' and 'custom'
         if (votingSystem === 'yesNo') {
             setVotingSystem('custom');
-            setQuorum(''); // Clear quorum value when switching to custom
+            setQuorum('');
             setVotingSystemParams('');
         } else {
             setVotingSystem('yesNo');
-            setCustomVotingSystem(''); // Reset default quorum value when switching back to Yes/No
+            setCustomVotingSystem('');
         }
     };
 
@@ -85,23 +85,40 @@ const CreateDAO = (props) => {
             ]);
 
             const voting_system =
-                (votingSystem === "yesNo") ? await programIdToAddress(process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID) : customVotingSystem;
+                (votingSystem === "yesNo") ?
+                    await programIdToAddress(
+                        process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID
+                    ) :
+                    customVotingSystem;
             const dao_manager_updater = (canUpdateDao === 'noone') ?
                 ZERO_ADDRESS :
                 (canUpdateDao === 'admin') ?
                     publicKey :
-                    await programIdToAddress(process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID)
+                    await programIdToAddress(
+                        process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID
+                    )
                 ;
             const voting_system_manager = (canVSUpdateList === 'noone') ?
                 ZERO_ADDRESS :
                 (canVSUpdateList === 'admin') ?
                     publicKey :
                     (creatorType === 'anyoone') ?
-                        await programIdToAddress(process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID) :
-                        await programIdToAddress(process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID)
+                        await programIdToAddress(
+                            process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
+                        ) :
+                        await programIdToAddress(
+                            process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
+                        )
                 ;
 
-            const voting_system_params = (votingSystem === "yesNo") ? `{quorum: ${quorum}u128}` : votingSystemParams;
+            const voting_system_params = (votingSystem === "yesNo") ?
+                `{quorum: ${quorum}u128}` :
+                votingSystemParams;
+            const proposers_manager = proposersUpdater === "admin" ?
+                publicKey :
+                await programIdToAddress(
+                    process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
+                );
             await createDao(
                 publicKey,
                 governanceTokenID,
@@ -111,7 +128,7 @@ const CreateDAO = (props) => {
                 dao_manager_updater,
                 voting_system_manager,
                 creatorType === "anyone",
-                creatorType === "admin" ? publicKey : await programIdToAddress(process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID)
+                proposers_manager
             );
             swal("Success", "DAO transaction was just submitted, check your wallet history.", "success");
             setQuorum("");
@@ -120,6 +137,7 @@ const CreateDAO = (props) => {
             setcanVSUpdateList('noone');
             setCreatorType('anyone');
             setCanUpdateDao('noone');
+            setProposersUpdater('admin');
             setGovernanceTokenID('');
             setCustomVotingSystem('');
             setIsCreateLoading(false);
@@ -153,6 +171,10 @@ const CreateDAO = (props) => {
                                     SelectProps={{ native: true }}
                                     variant="outlined"
                                     fullWidth
+                                    value={proposersUpdater}
+                                    onChange={(e) => {
+                                        setProposersUpdater(e.target.value)
+                                    }}
                                 >
                                     <option value="admin">Admin</option>
                                     <option value="vote">Members (Vote)</option>

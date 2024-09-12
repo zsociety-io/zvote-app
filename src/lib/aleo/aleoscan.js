@@ -26,3 +26,21 @@ export const listProgramMappingValues = async (
     cursor = page.cursor;
   }
 }
+
+
+export const getMappingValue = async (
+  programId,
+  mappingId,
+  key
+) => {
+  try {
+    const url = (
+      `${process.env.ALEOSCAN_API_URL}/mapping/get_value/`
+      + `${programId}/${mappingId}/${key}`
+
+    );
+    return await (await fetch(url)).json();
+  } catch (e) {
+    return null;
+  }
+}
