@@ -8,13 +8,15 @@ import { random_from_type, } from "@/lib/aleo/front.js";
 export const createDao = async (
   publicKey,
   token_id,
-  requestTransaction,
+  requestBulkTransactions,
   initial_voting_system,
+  voting_system_params,
   initial_vs_params_hash,
   dao_manager_updater,
   voting_system_manager,
   no_approval_required,
-  proposal_manager
+  proposal_manager,
+  voting_system_program_id
 ) => {
   const programId = process.env.NEXT_PUBLIC_DAO_FACTORY_PROGRAM_ID;
   const functionName = no_approval_required ?
@@ -41,7 +43,7 @@ export const createDao = async (
     );
   }
 
-  const aleoTransaction = Transaction.createTransaction(
+  const createTransaction = Transaction.createTransaction(
     publicKey,
     WalletAdapterNetwork.TestnetBeta,
     programId,
@@ -50,5 +52,23 @@ export const createDao = async (
     fee,
     false
   );
-  await requestTransaction(aleoTransaction);
+  const feeReferenceParamsTransaction = 1_000_000;
+
+  const referenceParamsTransaction = Transaction.createTransaction(
+    publicKey,
+    WalletAdapterNetwork.TestnetBeta,
+    voting_system_program_id,
+    "reference_voting_system_params",
+    [voting_system_params],
+    feeReferenceParamsTransaction,
+    false
+  );
+
+  await requestBulkTransactions([
+    createTransaction,
+    referenceParamsTransaction
+  ]);
+
+
+
 }

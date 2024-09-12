@@ -1,7 +1,7 @@
 
 import { Program, Plaintext } from "@/lib/aleo/node-sdk";
 import { getMappingValue } from "lib/aleo/aleoscan";
-
+import { bigIntToString } from "@/lib/utils/strings"
 
 export const snarkvmNetworks = {
   testnet: "TestnetV0",
@@ -39,6 +39,29 @@ export const getUserBalance = async (token_id, publicKey) => {
     hashStruct(tokenOwner),
   );
 }
+
+export const getTokenData = async (token_id) => {
+  const token_data = JSON.parse(
+    formatAleoString(
+      await getMappingValue(
+        process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+        "registered_tokens",
+        token_id,
+      )
+    )
+  );
+
+  token_data.name = bigIntToString(
+    BigInt(token_data.name.slice(0, -4))
+  );
+  token_data.symbol = bigIntToString(
+    BigInt(token_data.symbol.slice(0, -4))
+  );
+
+  return token_data;
+}
+
+
 
 
 export const formatAleoString = (aleoString) => {

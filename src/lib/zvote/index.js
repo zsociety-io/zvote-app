@@ -1,5 +1,5 @@
 import { listProgramMappingValues, getMappingValue } from "lib/aleo/aleoscan";
-import { formatAleoString, getUserBalance } from "@/lib/aleo";
+import { formatAleoString, getUserBalance, getTokenData } from "@/lib/aleo";
 import { programIdToAddress } from "@/lib/aleo";
 
 
@@ -68,14 +68,16 @@ export const daoManagerUpdaters = Object.fromEntries(
 
 export const getAddressDaos = async (publicKey) => {
   const daos = await getAllDaos();
-  console.log(daos)
   const ownedTokens = await getUserTokens(
     publicKey,
     daos.map(dao => dao.token_id)
   );
+  for (const dao of daos) {
+    dao.token = ownedTokens?.[dao.token_id];
+  }
   const owned_daos = daos.filter(
     dao => (
-      ownedTokens?.[dao.token_id] != null && ownedTokens?.[dao.token_id] > 0
+      dao.token.balance != null && dao.token.balance > 0
       || dao?.dao_manager?.address === publicKey
       || dao?.dao_manager?.dao_manager_updater?.address === publicKey
       || dao?.dao_manager?.voting_system_manager?.address === publicKey
@@ -92,15 +94,20 @@ export const getUserTokens = async (publicKey, fromList) => {
       async (token_id) => {
         return {
           token_id,
-          balance: await getUserBalance(token_id, publicKey)
+          balance: await getUserBalance(token_id, publicKey),
+          token_data: await getTokenData(token_id),
         }
       }
-    )
+    ),
   );
   return Object.fromEntries(
-    balances.map(({ token_id, balance }) => ([token_id, balance]))
+    balances.map(({ token_id, balance, token_data }) => ([token_id, {
+      balance,
+      token_data
+    }]))
   );
 }
+
 
 
 

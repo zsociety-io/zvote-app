@@ -20,7 +20,6 @@ const Container = styled.div`
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
-  background-color: #f7f7f7;
   border-radius: 8px;
   border: 1px solid #ddd;
   margin-bottom: 50px;
@@ -95,6 +94,7 @@ const DAOsList = () => {
     try {
       const newDaos = await get_request(`/api/contract/daos/${publicKey}`);
       setDaos(newDaos);
+      console.log(JSON.stringify(newDaos, null, 2))
     } catch (error) {
       console.error('Failed to load DAOs:', error);
     } finally {
@@ -117,8 +117,8 @@ const DAOsList = () => {
           <DAOList>
             {daos.map((dao, index) => (
               <DAOItem key={index}>
-                <DAOName>dsv sds dsvfs</DAOName>
-                <DAODescription>sdfsfd sddfs ds sdf sdfsdfs s fsdf sf</DAODescription>
+                <DAOName>{dao.dao_id.slice(0, 5) + "..." + dao.dao_id.slice(-10, dao.dao_id.length)}</DAOName>
+                <DAODescription>Dao Description, lorem ipsum test test test</DAODescription>
                 {/* Additional DAO details can go here */}
               </DAOItem>
             ))}

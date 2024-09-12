@@ -45,7 +45,7 @@ const theme = createTheme({
 
 
 const CreateDAO = (props) => {
-    const { requestTransaction, publicKey } = useWallet();
+    const { requestBulkTransactions, publicKey } = useWallet();
     const [quorum, setQuorum] = useState("");
     const [votingSystem, setVotingSystem] = useState('yesNo');
     const [votingSystemParams, setVotingSystemParams] = useState('');
@@ -84,12 +84,12 @@ const CreateDAO = (props) => {
                 process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
             ]);
 
-            const voting_system =
+            const voting_system_id =
                 (votingSystem === "yesNo") ?
-                    await programIdToAddress(
-                        process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID
-                    ) :
+                    process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID
+                    :
                     customVotingSystem;
+            const voting_system = await programIdToAddress(voting_system_id)
             const dao_manager_updater = (canUpdateDao === 'noone') ?
                 ZERO_ADDRESS :
                 (canUpdateDao === 'admin') ?
@@ -122,13 +122,15 @@ const CreateDAO = (props) => {
             await createDao(
                 publicKey,
                 governanceTokenID,
-                requestTransaction,
+                requestBulkTransactions,
                 voting_system,
+                voting_system_params,
                 await hashStruct(voting_system_params),
                 dao_manager_updater,
                 voting_system_manager,
                 creatorType === "anyone",
-                proposers_manager
+                proposers_manager,
+                voting_system_id
             );
             swal("Success", "DAO transaction was just submitted, check your wallet history.", "success");
             setQuorum("");
@@ -228,7 +230,7 @@ const CreateDAO = (props) => {
                                 <>
                                     <TextField
                                         margin="normal"
-                                        label="Custom Voting System (ie: 'aleo1...a12')"
+                                        label="Custom Voting System (ie: 'voting_system.aleo')"
                                         fullWidth
                                         value={customVotingSystem}
                                         onChange={(e) => {
