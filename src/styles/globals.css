@@ -178,11 +178,11 @@ a {
 }
 
 .navbar .navbar-brand {
-  max-width: 300px;
+  max-width: 230px;
 }
 
 .navbar .navbar-brand img {
-  max-width: 100%;
+  max-width: 60%;
 }
 
 .navbar .theme-btn {
