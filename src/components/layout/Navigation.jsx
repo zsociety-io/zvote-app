@@ -76,20 +76,38 @@ function Navigation({ }) {
                   data-bs-toggle="dropdown">Products</a>
                 <ul className="dropdown-menu">
                   <li>
-                    <Link className="dropdown-item" href="/launchpad#">
-                      DAO launchpad
+                    <Link className="dropdown-item" href="/launchpad">
+                      <span
+                        style={{
+                          fontWeight: (pathname === "/launchpad") ? "bold" : null
+                        }}
+                      >
+                        DAO launchpad
+                      </span>
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" href="/bot#">
-                      Discord Bots
+                    <Link className="dropdown-item" href="/bot">
+                      <span
+                        style={{
+                          fontWeight: (pathname === "/bot") ? "bold" : null
+                        }}
+                      >
+                        Discord Bots
+                      </span>
                     </Link>
                   </li>
                 </ul>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" href="/custom#">
-                  Custom Features
+                <Link className="nav-link" href="/custom">
+                  <span
+                    style={{
+                      fontWeight: (pathname === "/custom") ? "bold" : null
+                    }}
+                  >
+                    Custom Features
+                  </span>
                 </Link>
               </li>
               <li className="nav-item">
