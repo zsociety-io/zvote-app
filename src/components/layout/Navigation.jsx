@@ -45,7 +45,7 @@ function Navigation({ loginRefreshRef }) {
         <div className="container">
           <Link className="navbar-brand" href="/#">
             <>
-              <Image src={require("../../img/logo.svg").default} alt="logo" />
+              <Image src={require("../../img/logo.svg").default} alt="logo" height={100} style={{ maxHeight: "50%!important" }} width="auto" />
             </>
           </Link>
           <button className="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
