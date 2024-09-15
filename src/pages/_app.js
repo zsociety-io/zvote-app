@@ -14,12 +14,13 @@ import Head from 'next/head';
 import Navigation from '../components/layout/Navigation.jsx'
 import Footer from '../components/layout/Footer.jsx'
 import { WalletProvider } from '@demox-labs/aleo-wallet-adapter-react';
+import { useRouter } from 'next/router';
 
 import {
   DecryptPermission,
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect } from 'react';
 
 import {
   PuzzleWalletAdapter,
@@ -30,12 +31,17 @@ import {
   puzzleConfig
 } from "../lib/adapter/adapters/index.js";
 
+import { AccountProvider } from "@/components/AccountProvider"
+
 import { isMobile as reactDetectIsMobile } from 'react-device-detect';
 
 function App({ Component, pageProps }) {
+  const router = useRouter();
+  const noLayoutPaths = ['/dashboard'];
+  const hideLayout = noLayoutPaths.some((path) => router.pathname.startsWith(path));
+
   const appName = "zVote"
   const dAppUrl = `https://${process.env.NEXT_PUBLIC_HOST}/`;
-  const loginRefreshRef = useRef();
   const wallets = useMemo(
     () => [
       new LeoWalletAdapter({
@@ -65,27 +71,33 @@ function App({ Component, pageProps }) {
       ]}
       autoConnect
     >
-      <Head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1 maximum-scale=1"
-        />
-      </Head>
-      <Navigation />
-      <Component {...pageProps} />
-      <Footer />
-      <Script
-        src="bootstrap.bundle.min.js"
-        strategy="lazyOnload"
-      />
-      <Script
-        src="jquery-3.6.0.min.js"
-        strategy="lazyOnload"
-      />
-      <Script
-        src="popper.min.js"
-        strategy="lazyOnload"
-      />
+      <AccountProvider>
+        <Head>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1 maximum-scale=1"
+          />
+        </Head>
+        {!hideLayout && <Navigation />}
+        <Component {...pageProps} />
+        {!hideLayout && <Footer />}
+      </AccountProvider>
+      {!hideLayout && (
+        <>
+          <Script
+            src="bootstrap.bundle.min.js"
+            strategy="lazyOnload"
+          />
+          <Script
+            src="jquery-3.6.0.min.js"
+            strategy="lazyOnload"
+          />
+          <Script
+            src="popper.min.js"
+            strategy="lazyOnload"
+          />
+        </>
+      )}
     </WalletProvider>
   </>
 }

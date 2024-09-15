@@ -88,6 +88,85 @@ export const getAddressDaos = async (publicKey) => {
 }
 
 
+export const getDao = async (daoId) => {
+  const daos = await getAllDaos([daoId]);
+  const dao = daos?.[0] || null;
+
+  dao.proposals = await getAllProposals(daoId);
+  dao.voting_systems = await getDaoVotingSystems(daoId);
+
+  return dao;
+  /*
+  const ownedTokens = await getUserTokens(
+    publicKey,
+    [dao.token_id]
+  );
+  dao.token = ownedTokens?.[dao.token_id];
+  */
+}
+
+export const getDaoVotingSystems = async (daoId) => {
+  const voting_system_mapping_values = await listProgramMappingValues(
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+    "voting_systems"
+  );
+
+  const voting_systems = voting_system_mapping_values
+    .map(
+      ({ key, value }) => {
+        const vs = JSON.parse(formatAleoString(value));
+        return {
+          dao_id: vs.dao_id,
+          address: vs.voting_system,
+          program_id: votingSystems?.[vs.voting_system] || null,
+          params_hash: vs.vs_params_hash,
+          key_hash: key
+        };
+      }
+    )
+    .filter(
+      (vs) => (vs.dao_id === daoId)
+    );
+
+  const loaded_voting_systems = await Promise.all(
+    voting_systems.map(
+      async (voting_system) => {
+        const paramsStr = await getMappingValue(
+          voting_system.program_id,
+          "voting_system_params",
+          voting_system.params_hash,
+        );
+        const params = JSON.parse(formatAleoString(paramsStr));
+        delete voting_system.dao_id;
+        return {
+          ...voting_system,
+          params,
+        };
+      }
+    )
+  )
+  return loaded_voting_systems;
+}
+
+export const getAllProposals = async (daoId) => {
+  const proposals_mapping_values = await listProgramMappingValues(
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+    "proposals"
+  );
+  const proposals = proposals_mapping_values
+    .filter(
+      ([key, value]) => value.dao_id === daoId
+    )
+    .map(
+      ([key, value]) => ({
+        ...JSON.parse(formatAleoString(value)),
+        proposal_key_hash: key,
+      })
+    );
+  return proposals;
+}
+
+
 export const getUserTokens = async (publicKey, fromList) => {
   const balances = await Promise.all(
     fromList.map(
@@ -109,50 +188,30 @@ export const getUserTokens = async (publicKey, fromList) => {
 }
 
 
-
-
-export const getAllDaos = async () => {
+export const getAllDaos = async (daoIdFilterList) => {
   const dao_mapping_values = await listProgramMappingValues(
     process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
     "daos"
   );
-  const voting_system_mapping_values = await listProgramMappingValues(
-    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
-    "voting_systems"
-  );
   const daos = Object.fromEntries(
-    dao_mapping_values.map(
-      ({ key, value }) => ([
-        key, {
-          ...JSON.parse(formatAleoString(value)),
-          voting_systems: [],
-        }
-      ])
-    )
+    dao_mapping_values
+      .filter(
+        ({ key, value }) => (
+          daoIdFilterList == null || daoIdFilterList.includes(key)
+        )
+      )
+      .map(
+        ({ key, value }) => ([
+          key, JSON.parse(formatAleoString(value))
+        ])
+      )
   );
-  const voting_systems =
-    voting_system_mapping_values.map(
-      ({ key, value }) => ({
-        ...JSON.parse(formatAleoString(value)),
-        voting_system_key_hash: key,
-      })
-    );
-  for (const voting_system of voting_systems) {
-    const dao = daos?.[voting_system?.dao_id];
-    if (dao != null) {
-      dao.voting_systems.push({
-        address: voting_system.voting_system,
-        program_id: votingSystems?.[voting_system.voting_system] || null,
-        params_hash: voting_system.vs_params_hash,
-        key_hash: voting_system.voting_system_key_hash
-      });
-    }
-  }
-  return await Promise.all(Object.values(daos).map(loadDao));
+
+  return await Promise.all(Object.values(daos).map(loadManagers));
 }
 
 
-export const loadDao = async (dao) => {
+export const loadManagers = async (dao) => {
   dao.dao_manager = {
     address: dao.dao_manager,
     program_id: daoManagers?.[dao.dao_manager] || null

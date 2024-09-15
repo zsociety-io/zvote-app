@@ -43,7 +43,7 @@ function Home() {
           <div className="row align-items-center">
             <div className="col-xxl-10 mx-auto">
               <h1>Let's create your <br /><span ref={typedHero}></span> DAO.</h1>
-              <p><strong>launchpad</strong> for creating private decentralised organisation, on <strong>Aleo</strong>.<br />
+              <p><strong>Launchpad</strong> for creating private decentralised organisation, on <strong>Aleo</strong>.<br />
                 Full customization of both <strong>smart contract</strong> and <strong>frontend</strong>.
               </p>
               <a

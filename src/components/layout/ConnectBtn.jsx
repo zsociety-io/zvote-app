@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import { WalletAdapterNetwork, WalletReadyState } from '@demox-labs/aleo-wallet-adapter-base';
 
-import { useConnected, decryptPermission, network, programs } from '../../hooks/useConnected.js';
+import { useAccount, decryptPermission, network, programs } from '@/components/AccountProvider';
 import useCookie from 'react-use-cookie';
 import { get_request } from '@/lib/utils/network.js';
 
@@ -102,7 +102,7 @@ function ConnectBtn(props) {
         return [installed, [...loadable, ...notDetected]];
     }, [wallets]);
 
-    const { connected: accountConnected, loading: accountLoading, setConnected } = useConnected();
+    const { connected: accountConnected, loading: accountLoading, setConnected } = useAccount();
 
     const connectSemiDapp = async () => {
         try {
@@ -122,9 +122,6 @@ function ConnectBtn(props) {
             setSessionIdCookie(Math.floor(Math.random() * 1e10), frontCookieOptions);
             setConnected(true);
             swal("Success", "You are connected.", "success");
-            if (props?.loginRefreshRef?.current) {
-                props.loginRefreshRef.current()
-            };
         }
         catch (e) {
             swal("Error", (e?.message || e) + "", "error");

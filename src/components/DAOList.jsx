@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import { get_request } from '@/lib/utils/network.js';
+import Image from "next/image"
+import Link from "next/link"
 
 // Keyframes for animations
 const fadeIn = keyframes`
@@ -48,10 +50,13 @@ const DAOList = styled.ul`
 `;
 
 const DAOItem = styled.li`
+  display: flex;
+  justify-content: space-between; /* Moves the image to the right */
+  align-items: center; /* Centers the content vertically */
   background-color: #ffffff;
   border-radius: 10px;
   margin-bottom: 20px;
-  padding: 20px;
+  padding: 20px 30px;
   border: 1px solid #ddd;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
@@ -63,11 +68,18 @@ const DAOItem = styled.li`
   }
 `;
 
+const ImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const DAOName = styled.h2`
   font-size: 1.8rem;
   color: #333;
   margin-bottom: 10px;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Lekton', sans-serif;
+  font-weight: 700;
 `;
 
 const DAODescription = styled.p`
@@ -84,7 +96,6 @@ const NoDAOsMessage = styled.p`
   margin-top: 50px;
   font-family: 'Open Sans', sans-serif;
 `;
-
 const DAOsList = () => {
   const { requestTransaction, publicKey } = useWallet();
   const [daos, setDaos] = useState([]);
@@ -110,17 +121,24 @@ const DAOsList = () => {
 
   return (
     <>
-      {/* Use expanded prop to dynamically set the max-height */}
       <Container expanded={daos.length > 0 && !isLoading}>
         <Title>My DAOs</Title>
         {daos.length > 0 ? (
           <DAOList>
             {daos.map((dao, index) => (
-              <DAOItem key={index}>
-                <DAOName>{dao.dao_id.slice(0, 5) + "..." + dao.dao_id.slice(-10, dao.dao_id.length)}</DAOName>
-                <DAODescription>Dao Description, lorem ipsum test test test</DAODescription>
-                {/* Additional DAO details can go here */}
-              </DAOItem>
+              <Link href={`/dashboard/${dao.dao_id}`} key={index} style={{ display: "block" }}>
+                <DAOItem>
+                  <div>
+                    <DAOName>{`${dao.token.token_data.name} (${dao.token.token_data.symbol})`}</DAOName>
+                    <DAODescription>
+                      <span style={{ fontWeight: 700 }}>DAO ID:</span> {dao.dao_id.slice(0, 5) + "..." + dao.dao_id.slice(-10, dao.dao_id.length)}
+                    </DAODescription>
+                  </div>
+                  <ImageContainer>
+                    <Image src={require("@/img/dao-manage.png").default} alt="wallet" height={35} />
+                  </ImageContainer>
+                </DAOItem>
+              </Link>
             ))}
           </DAOList>
         ) : (

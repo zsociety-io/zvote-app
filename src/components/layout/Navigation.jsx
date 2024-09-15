@@ -3,11 +3,15 @@ import Link from "next/link";
 import { useEffect } from "react";
 import Image from "next/image";
 import ConnectButton from "./ConnectBtn.jsx"
+import { usePathname } from 'next/navigation'
 
-
-function Navigation({ loginRefreshRef }) {
+function Navigation({ }) {
+  const pathname = usePathname();
   useEffect(() => {
     const handleScroll = () => {
+      if (pathname === "/profile") {
+        return;
+      }
       const scrollTop = window.scrollY;
       const stickyMenu = document.querySelector(".sticky-menu");
 
@@ -28,6 +32,8 @@ function Navigation({ loginRefreshRef }) {
           scrollToTopButton.style.display = "none";
         }
       }
+
+
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -99,7 +105,7 @@ function Navigation({ loginRefreshRef }) {
 
             </ul>
           </div>
-          <ConnectButton loginRefreshRef={loginRefreshRef} />
+          <ConnectButton />
         </div>
       </nav>
     </header>

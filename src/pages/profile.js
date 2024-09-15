@@ -2,17 +2,16 @@
 import React, { useRef, useEffect, useState, useReducer } from "react";
 
 //import { AddBotBtn, ConsumedUnits } from "./index.js";
-import { useConnected, decryptPermission, network, programs } from '@/hooks/useConnected';
+import { useAccount } from '@/components/AccountProvider';
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import CreateDAO from "@/components/CreateDAO.jsx"
 import DAOList from "@/components/DAOList.jsx"
 import Image from "next/image"
 
-
 const forceUpdateReducer = (x) => x + 1;
 
 
-function Profile({ loginRefreshRef }) {
+function Profile({ }) {
   const [tokenurl, setTokenurl] = useState('');
   const [, forceUpdate] = useReducer(forceUpdateReducer, 0);
 
@@ -20,16 +19,13 @@ function Profile({ loginRefreshRef }) {
     forceUpdate(); // This forces a re-render
   };
 
-  if (loginRefreshRef?.current) {
-    loginRefreshRef.current = forceUpdatePush;
-  }
-  const { connected, loading, setConnected, logOut } = useConnected();
+  const { connected, loading, setConnected, logOut } = useAccount();
   const { publicKey } = useWallet();
 
   const daos = [];
   useEffect(() => {
     var checkExist = setInterval(function () {
-      if ($('.copyInput button').length) {
+      if (document.querySelectorAll('.copyInput button').length > 0) {
         var copyContainer = $(".copyInput button");
         copyContainer.click(function () {
           var $temp = $("<input>");
