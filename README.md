@@ -1,8 +1,8 @@
 # zVote DApp Frontend
 
-## Next.js
+[zVote contracts](https://github.com/zsolutions-io/zvote-app)
 
-dao-dashboard-settings.png
+## Next.js
 
 ## Semi-DApp: Signature Based Session
 
