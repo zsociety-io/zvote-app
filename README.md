@@ -1,13 +1,29 @@
-# zVote DApp Next.js
+# zVote DApp Frontend
 
-NEXT_PUBLIC_CREDITS_PROGRAM_ID=credits.aleo
-NEXT_PUBLIC_MTSP_PROGRAM_ID=multi_token_support_programv1.aleo
-NEXT_PUBLIC_MDSP_PROGRAM_ID=multi_dao_support_program.aleo
-NEXT_PUBLIC_DAOM_APL_PROGRAM_ID=daom__approved_proposers_001.aleo
-NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID=daom__no_approval_required.aleo
-NEXT_PUBLIC_DAO_FACTORY_PROGRAM_ID=zvote_dao_factory_002.aleo
-NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID=vs__2_candidates.aleo
-NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID=daomu__dao_based.aleo
-NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID=vsm__dao_based_nar.aleo
-NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID=vsm__dao_based_ap_001.aleo
-NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID=psm__dao_based_001.aleo
+## Next.js
+
+dao-dashboard-settings.png
+
+## Semi-DApp: Signature Based Session
+
+Semi-DApp Features:
+
+- Authenticate users to backend using adapter message signing.
+- Session management, users identified with their public key.
+- Discord Bot Server Setup (not deployed in production yet).
+
+## DApp: Dashboard
+
+- Create and list DAOs in profile.
+
+![alt text](/public/zvote-profile.png)
+
+- Add and list proposals, filter by types.
+
+![alt text](/public/dao-dashboard-proposals.png)
+
+- Update DAO Settings.
+- Update DAO Voting Systems.
+- Update DAO Proposers.
+
+![alt text](/public/dao-dashboard-settings.png)
