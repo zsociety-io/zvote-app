@@ -32,3 +32,4 @@ export function bigIntToString(bigIntValue) {
   const asciiString = decoder.decode(Uint8Array.from(bytes));
   return asciiString;
 }
+
