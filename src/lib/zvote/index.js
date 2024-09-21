@@ -92,8 +92,8 @@ export const getDao = async (daoId) => {
   const daos = await getAllDaos([daoId]);
   const dao = daos?.[0] || null;
 
-  dao.proposals = await getAllProposals(daoId);
-  dao.voting_systems = await getDaoVotingSystems(daoId);
+  //dao.proposals = await getAllProposals(daoId);
+  //dao.voting_systems = await getDaoVotingSystems(daoId);
 
   return dao;
   /*
