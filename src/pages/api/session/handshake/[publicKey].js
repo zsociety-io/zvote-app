@@ -1,7 +1,7 @@
-import handlers from 'lib/utils/handlers';
+import handlers from '@/lib/utils/handlers';
 import {
   create_handshake_token
-} from 'lib/authentication';
+} from '@/lib/authentication';
 
 
 export default handlers(

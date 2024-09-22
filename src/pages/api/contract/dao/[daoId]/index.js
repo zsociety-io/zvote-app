@@ -1,4 +1,4 @@
-import handlers from 'lib/utils/handlers';
+import handlers from '@/lib/utils/handlers';
 import { getDao } from '@/lib/zvote';
 
 

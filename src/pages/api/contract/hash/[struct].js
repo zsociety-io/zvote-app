@@ -1,5 +1,5 @@
-import handlers from 'lib/utils/handlers';
-import { hashStruct } from 'lib/aleo';
+import handlers from '@/lib/utils/handlers';
+import { hashStruct } from '@/lib/aleo';
 
 
 export default handlers(

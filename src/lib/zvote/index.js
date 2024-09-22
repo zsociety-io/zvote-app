@@ -1,4 +1,4 @@
-import { listProgramMappingValues, getMappingValue } from "lib/aleo/aleoscan";
+import { listProgramMappingValues, getMappingValue } from "@/lib/aleo/aleoscan";
 import { formatAleoString, getUserBalance, getTokenData } from "@/lib/aleo";
 import { programIdToAddress } from "@/lib/aleo";
 

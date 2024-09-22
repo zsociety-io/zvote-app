@@ -54,23 +54,21 @@ export const AccountProvider = ({ children }) => {
     useEffect(() => {
         if (!walletCookie || !sessionIdCookie || !select) return;
         select(walletCookie);
-    }, [select, walletCookie, sessionIdCookie, publicKey]);
+    }, [select, walletCookie, sessionIdCookie]);
 
     useEffect(() => {
         if (wallet) {
             autoConnect();
         }
-    }, [select, walletCookie, sessionIdCookie, publicKey, wallet]);
+    }, [wallet]);
 
-    useMemo(() => {
+    useEffect(() => {
         if (publicKey) {
-            checkConnected();
-        } else if (connecting) {
-            setLoading(true);
-        } else if (!connecting) {
-            setLoading(false);
+            checkConnected(); // Check if user is connected when publicKey changes
+        } else {
+            setConnected(false); // If no publicKey, set connected to false
         }
-    }, [walletCookie, sessionIdCookie, publicKey, connecting]);
+    }, [publicKey]);
 
     return (
         <AccountContext.Provider value={{ connected, loading, setConnected, logOut }}>

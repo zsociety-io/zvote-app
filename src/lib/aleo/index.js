@@ -1,6 +1,6 @@
 
 import { Program, Plaintext } from "@/lib/aleo/node-sdk";
-import { getMappingValue } from "lib/aleo/aleoscan";
+import { getMappingValue } from "@/lib/aleo/aleoscan";
 import { bigIntToString } from "@/lib/utils/strings"
 
 export const snarkvmNetworks = {

@@ -1,7 +1,7 @@
-import handlers from 'lib/utils/handlers';
+import handlers from '@/lib/utils/handlers';
 import {
   get_session
-} from 'lib/authentication';
+} from '@/lib/authentication';
 
 
 export default handlers(

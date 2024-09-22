@@ -20,6 +20,7 @@ import {
   DecryptPermission,
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
+
 import React, { useMemo, useEffect } from 'react';
 
 import {
@@ -31,7 +32,7 @@ import {
   puzzleConfig
 } from "../lib/adapter/adapters/index.js";
 
-import { AccountProvider } from "@/components/AccountProvider"
+import { AccountProvider } from "../components/AccountProvider"
 
 import { isMobile as reactDetectIsMobile } from 'react-device-detect';
 
@@ -60,7 +61,6 @@ function App({ Component, pageProps }) {
     configureConnectionForPuzzle({ ...puzzleConfig, dAppUrl });
   }, []);
 
-
   return <>
     <WalletProvider
       wallets={wallets}
@@ -78,7 +78,7 @@ function App({ Component, pageProps }) {
             content="width=device-width, initial-scale=1 maximum-scale=1"
           />
         </Head>
-        {!hideLayout && <Navigation />}
+        <Navigation />
         <Component {...pageProps} />
         {!hideLayout && <Footer />}
       </AccountProvider>

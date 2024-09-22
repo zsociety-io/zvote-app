@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
-import { get_request } from '@/lib/utils/network.js';
+import { get_request } from '../lib/utils/network.js';
 import Image from "next/image"
 import Link from "next/link"
 

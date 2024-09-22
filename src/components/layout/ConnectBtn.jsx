@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import { WalletAdapterNetwork, WalletReadyState } from '@demox-labs/aleo-wallet-adapter-base';
 
-import { useAccount, decryptPermission, network, programs } from '@/components/AccountProvider';
+import { useAccount, decryptPermission, network, programs } from '../AccountProvider';
 import useCookie from 'react-use-cookie';
-import { get_request } from '@/lib/utils/network.js';
+import { get_request } from '../../lib/utils/network.js';
 
 import swal from 'sweetalert';
 
@@ -106,8 +106,11 @@ function ConnectBtn(props) {
 
     const connectSemiDapp = async () => {
         try {
+            console.log("plop")
             const handshake_token = await get_request(`/api/session/handshake/${publicKey}`);
+            console.log(handshake_token)
             const message = prepareSignedMessage(handshake_token.token, handshake_token.time);
+            console.log(message)
             const signature = await signMessage(
                 new TextEncoder().encode(message)
             );
@@ -116,6 +119,7 @@ function ConnectBtn(props) {
                 signature: new TextDecoder().decode(signature),
                 publicKey
             };
+            console.log(signedMessage)
             const signedMessageStr = encodeURIComponent(JSON.stringify(signedMessage));
             const reponseBackEndGenerateSessionToken = await get_request(`/api/session/create/${signedMessageStr}`);
             setWalletCookie(selectedWallet, frontCookieOptions);
@@ -124,6 +128,7 @@ function ConnectBtn(props) {
             swal("Success", "You are connected.", "success");
         }
         catch (e) {
+            console.log({ e })
             swal("Error", (e?.message || e) + "", "error");
         }
         setLoading(false);

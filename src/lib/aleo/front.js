@@ -1,4 +1,4 @@
-import { get_request } from 'lib/utils/network.js';
+import { get_request } from '@/lib/utils/network.js';
 import { randBetween } from 'bigint-crypto-utils'
 
 const programAddresses = {};

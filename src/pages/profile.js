@@ -2,10 +2,10 @@
 import React, { useRef, useEffect, useState, useReducer } from "react";
 
 //import { AddBotBtn, ConsumedUnits } from "./index.js";
-import { useAccount } from '@/components/AccountProvider';
+import { useAccount } from '../components/AccountProvider';
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
-import CreateDAO from "@/components/CreateDAO.jsx"
-import DAOList from "@/components/DAOList.jsx"
+import CreateDAO from "../components/CreateDAO.jsx"
+import DAOList from "../components/DAOList.jsx"
 import Image from "next/image"
 
 const forceUpdateReducer = (x) => x + 1;

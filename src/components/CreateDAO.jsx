@@ -18,9 +18,9 @@ import {
 
 import Image from "next/image";
 
-import { ZERO_ADDRESS, programIdToAddress, hashStruct, loadProgramAddresses } from "lib/aleo/front";
+import { ZERO_ADDRESS, programIdToAddress, hashStruct, loadProgramAddresses } from "../lib/aleo/front";
 
-import { createDao } from "@/lib/adapter/index.js"
+import { createDao } from "../lib/adapter/index.js"
 import swal from 'sweetalert';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
