@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-const path = require("path");
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -16,7 +15,6 @@ const nextConfig = {
     if (!isServer) {
       config.output.environment = { ...config.output.environment, asyncFunction: true };
     }
-    config.resolve.alias['@'] = path.resolve(__dirname) + "/src";
 
     return config;
   },

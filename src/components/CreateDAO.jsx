@@ -49,7 +49,7 @@ const CreateDAO = (props) => {
     const [quorum, setQuorum] = useState("");
     const [votingSystem, setVotingSystem] = useState('yesNo');
     const [votingSystemParams, setVotingSystemParams] = useState('');
-    const [canVSUpdateList, setcanVSUpdateList] = useState('noone');
+    const [canVSUpdateList, setCanVSUpdateList] = useState('noone');
     const [creatorType, setCreatorType] = useState('anyone');
     const [canUpdateDao, setCanUpdateDao] = useState('noone');
     const [governanceTokenID, setGovernanceTokenID] = useState('');
@@ -136,7 +136,7 @@ const CreateDAO = (props) => {
             setQuorum("");
             setVotingSystem('yesNo');
             setVotingSystemParams('');
-            setcanVSUpdateList('noone');
+            setCanVSUpdateList('noone');
             setCreatorType('anyone');
             setCanUpdateDao('noone');
             setProposersUpdater('admin');
@@ -253,25 +253,14 @@ const CreateDAO = (props) => {
                         {/* 3. Update Voting System List Control */}
                         <FormControl fullWidth margin="normal">
                             <FormLabel>3. Who can update voting system list?</FormLabel>
-                            <RadioGroup value={canVSUpdateList} onChange={(e) => setcanVSUpdateList(e.target.value)}>
+                            <RadioGroup value={canVSUpdateList} onChange={(e) => setCanVSUpdateList(e.target.value)}>
                                 <FormControlLabel value="noone" control={<Radio />} label="No one" />
                                 <FormControlLabel value="admin" control={<Radio />} label="Admin" />
                                 <FormControlLabel value="vote" control={<Radio />} label="Members (Vote)" />
                             </RadioGroup>
                         </FormControl>
 
-                        {/* 4. DAO Token ID */}
-                        <TextField
-                            label="DAO Token ID (ie: 'field1...12')"
-                            variant="outlined"
-                            value={governanceTokenID}
-                            onChange={(e) => setGovernanceTokenID(e.target.value)}
-                            fullWidth
-                            margin="normal"
-                            required
-                        />
-
-                        {/* 5. Update Voting System List Control */}
+                        {/* 4. Update Voting System List Control */}
                         <FormControl fullWidth margin="normal">
                             <FormLabel>4. Who can update these settings?</FormLabel>
                             <RadioGroup value={canUpdateDao} onChange={(e) => setCanUpdateDao(e.target.value)}>
@@ -280,6 +269,20 @@ const CreateDAO = (props) => {
                                 <FormControlLabel value="vote" control={<Radio />} label="Members (Vote)" />
                             </RadioGroup>
                         </FormControl>
+
+                        <FormControl fullWidth margin="normal">
+                            <FormLabel>5. DAO Token ID</FormLabel>
+                            <TextField
+                                label="1...12field"
+                                variant="outlined"
+                                value={governanceTokenID}
+                                onChange={(e) => setGovernanceTokenID(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                                required
+                            />
+                        </FormControl>
+                        {/* 4. DAO Token ID */}
 
                         {/* Submit Button */}
                         <Button style={{ borderRadius: "50px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>

@@ -82,18 +82,20 @@ function App({ Component, pageProps }) {
         <Component {...pageProps} />
         {!hideLayout && <Footer />}
       </AccountProvider>
+      <>
+        <Script
+          src="/jquery-3.6.0.min.js"
+          strategy="lazyOnload"
+        />
+      </>
       {!hideLayout && (
         <>
           <Script
-            src="bootstrap.bundle.min.js"
+            src="/bootstrap.bundle.min.js"
             strategy="lazyOnload"
           />
           <Script
-            src="jquery-3.6.0.min.js"
-            strategy="lazyOnload"
-          />
-          <Script
-            src="popper.min.js"
+            src="/popper.min.js"
             strategy="lazyOnload"
           />
         </>

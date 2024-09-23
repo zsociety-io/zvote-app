@@ -11,10 +11,13 @@ function Navigation({ }) {
   const noLayoutPaths = ['/dashboard'];
   const hideLayout = noLayoutPaths.some((path) => router.pathname.startsWith(path));
 
+  const noFollowPaths = ['/dashboard', '/profile'];
+  const hideFollow = noFollowPaths.some((path) => router.pathname.startsWith(path));
+
   const pathname = usePathname();
   useEffect(() => {
     const handleScroll = () => {
-      if (pathname === "/profile") {
+      if (hideFollow) {
         return;
       }
       const scrollTop = window.scrollY;

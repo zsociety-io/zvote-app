@@ -41,13 +41,20 @@ export const getUserBalance = async (token_id, publicKey) => {
 }
 
 export const getTokenData = async (token_id) => {
+  const mappingValue = await getMappingValue(
+    process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+    "registered_tokens",
+    token_id,
+  );
+  if (mappingValue == null) {
+    return {
+      name: "?",
+      symbol: "?",
+    };
+  }
   const token_data = JSON.parse(
     formatAleoString(
-      await getMappingValue(
-        process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
-        "registered_tokens",
-        token_id,
-      )
+      mappingValue
     )
   );
 

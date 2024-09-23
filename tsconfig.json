@@ -1,5 +1,26 @@
 {
   "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/lib/*": [
+        "lib/*"
+      ],
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/hooks/*": [
+        "hooks/*"
+      ],
+      "@/img/*": [
+        "img/*"
+      ],
+      "@/styles/*": [
+        "styles/*"
+      ],
+      "@/pages/*": [
+        "pages/*"
+      ],
+    },
     "lib": [
       "dom",
       "dom.iterable",

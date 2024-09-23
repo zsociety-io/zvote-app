@@ -5,16 +5,20 @@ import { ProposalsPage, ProposalsFilters } from "@/components/dashboard/Proposal
 import { DaoCorePage, } from "@/components/dashboard/DaoCore";
 import { useTailwindLayout } from "@/hooks/useTailwindLayout"
 
+import { getDao } from '@/lib/zvote';
+
 import {
     DecryptPermission,
     WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
 
-export default function DashboardLayout() {
+
+export default function DashboardLayout({
+    dao
+}) {
     const [activeTab, setActiveTab] = useState("proposals");
     const isProposals = (activeTab === "proposals");
     const isDaoCore = (activeTab === "daoCore");
-    console.log({ net: WalletAdapterNetwork.TestnetBeta })
     useTailwindLayout();
     return (
         <>
@@ -35,15 +39,19 @@ export default function DashboardLayout() {
                             DAO Core
                         </h1>
                     </div >
-
                     {isProposals && <ProposalsFilters />}
                 </div>
                 {isProposals && <ProposalsPage />}
-                {isDaoCore && <DaoCorePage />}
+                {isDaoCore && <DaoCorePage dao={dao} />}
             </div>
         </>
     );
 }
 
 
-
+export async function getServerSideProps(context) {
+    const dao = await getDao(
+        context.params.daoId
+    )
+    return { props: { dao } }
+}

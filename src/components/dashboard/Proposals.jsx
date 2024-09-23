@@ -20,25 +20,28 @@ const TableRow = () => {
 };
 
 export function ProposalsPage() {
-    const [activeTab, setActiveTab] = useState("All");
+    const [activeTab, setActiveTab] = useState("all");
     return (
         <>
             <div className="grid grid-cols-4 gap-[32px] mt-[18px] text-[#0C0B3F]">
                 <div className="col-span-1">
                     <div className="py-[25px] px-[35px] bg-white rounded-[15px] border border-[#D5D5D5]">
-                        <h2 className="text-[22px] font-black">All Proposals</h2>
-                        <ul className="flex flex-col gap-4 mt-4 text-[22px] font-medium">
+
+                        <ul className="flex flex-col gap-4 mt-4 text-[18px] font-medium">
                             <li>
-                                <Link href="#">Voting Systems Update</Link>
+                                <Link href="#" className={activeTab === "all" ? "font-black" : ""} onClick={() => setActiveTab("all")}>All Proposals</Link>
                             </li>
                             <li>
-                                <Link href="#">Proposers Update</Link>
+                                <Link href="#" className={activeTab === "vsu" ? "font-black" : ""} onClick={() => setActiveTab("vsu")}>Voting Systems Update</Link>
                             </li>
                             <li>
-                                <Link href="#">Settings Update</Link>
+                                <Link href="#" className={activeTab === "psu" ? "font-black" : ""} onClick={() => setActiveTab("psu")}>Proposers Update</Link>
                             </li>
                             <li>
-                                <Link href="#">Other Proposals</Link>
+                                <Link href="#" className={activeTab === "stu" ? "font-black" : ""} onClick={() => setActiveTab("stu")}>Settings Update</Link>
+                            </li>
+                            <li>
+                                <Link href="#" className={activeTab === "other" ? "font-black" : ""} onClick={() => setActiveTab("other")}>Other Proposals</Link>
                             </li>
                         </ul>
                     </div>
@@ -82,11 +85,11 @@ export function ProposalsFilters() {
     return (
         <>
             <div className="flex gap-11 items-center">
-                <div className="bg-[#E5E6ED] p-[5px] rounded-[10px]">
+                <div className="bg-[#E5E6ED] p-[4px] rounded-[10px]">
                     <button
                         onClick={() => setActiveFilter("All")}
                         type="button"
-                        className={`px-[28px] py-1 text-[18px] font-medium rounded-[10px] ${activeFilter === "All" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "All" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
                         All
@@ -94,7 +97,7 @@ export function ProposalsFilters() {
                     <button
                         onClick={() => setActiveFilter("Active")}
                         type="button"
-                        className={`px-[28px] py-1 text-[18px] font-medium rounded-[10px] ${activeFilter === "Active" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Active" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
                         Active
@@ -102,7 +105,7 @@ export function ProposalsFilters() {
                     <button
                         onClick={() => setActiveFilter("Past")}
                         type="button"
-                        className={`px-[28px] py-1 text-[18px] font-medium rounded-[10px] ${activeFilter === "Past" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Past" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
                         Past
@@ -110,7 +113,7 @@ export function ProposalsFilters() {
                     <button
                         onClick={() => setActiveFilter("Accepted")}
                         type="button"
-                        className={`px-[28px] py-1 text-[18px] font-medium rounded-[10px] ${activeFilter === "Accepted" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Accepted" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
                         Accepted

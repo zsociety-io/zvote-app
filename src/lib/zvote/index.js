@@ -87,15 +87,49 @@ export const getAddressDaos = async (publicKey) => {
   return owned_daos;
 }
 
+const getDaoProposers = async (dao, daoId) => {
+  const proposers_mapping_values = await listProgramMappingValues(
+    process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID,
+    "approved_proposers"
+  );
+  const proposers = proposers_mapping_values
+    .map(
+      ({ key, value }) => {
+        const vs = JSON.parse(formatAleoString(value));
+        return {
+          dao_id: vs.dao_id,
+          address: vs.proposer
+        };
+      }
+    )
+    .filter(
+      (vs) => (vs.dao_id === daoId)
+    );
+
+
+  return proposers;
+}
+
 
 export const getDao = async (daoId) => {
   const daos = await getAllDaos([daoId]);
   const dao = daos?.[0] || null;
-
-  //dao.proposals = await getAllProposals(daoId);
-  //dao.voting_systems = await getDaoVotingSystems(daoId);
+  if (dao != null) {
+    dao.proposals = await getAllProposals(daoId);
+    dao.voting_systems = await getDaoVotingSystems(daoId);
+    if (dao?.dao_manager?.program_id === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID) {
+      dao.dao_manager.proposers = await getDaoProposers(dao, daoId);
+    }
+    //dao. = await getDaoProposers(daoId);
+    /*
+    if(){
+      dao.prosposers = ...
+    }
+    */
+  }
 
   return dao;
+
   /*
   const ownedTokens = await getUserTokens(
     publicKey,
@@ -141,6 +175,7 @@ export const getDaoVotingSystems = async (daoId) => {
         return {
           ...voting_system,
           params,
+          paramsStr
         };
       }
     )
