@@ -20,7 +20,6 @@ import Image from "next/image";
 
 import { ZERO_ADDRESS, programIdToAddress, hashStruct, loadProgramAddresses } from "../lib/aleo/front.js";
 
-import { createDao } from "../lib/adapter/index.js"
 import swal from 'sweetalert';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -44,25 +43,83 @@ const theme = createTheme({
 });
 
 
-
 const UpdateDAO = ({
     defaultSettings,
     setIsUpdateLoading,
     refIsUpdateLoading,
     setIsUpdateEdited,
+    updateDaoParamsRef
 }) => {
     defaultSettings = defaultSettings || undefined;
-    const { requestBulkTransactions, publicKey } = useWallet();
+    const { requestTransaction, publicKey } = useWallet();
     const [canVSUpdateList, setCanVSUpdateList] = useState('noone');
     const [creatorType, setCreatorType] = useState('anyone');
     const [canUpdateDao, setCanUpdateDao] = useState('noone');
-    const [governanceTokenID, setGovernanceTokenID] = useState('');
+    const [governanceTokenID, setGovernanceTokenID] = useState(null);
     const [proposersUpdater, setProposersUpdater] = useState('admin');
-    const [proposersAdmin, setProposersAdmin] = useState('');
-    const [daoAdmin, setDaoAdmin] = useState('');
-    const [vsAdmin, setVsAdmin] = useState('');
+    const [proposersAdmin, setProposersAdmin] = useState(null);
+    const [daoAdmin, setDaoAdmin] = useState(null);
+    const [vsAdmin, setVsAdmin] = useState(null);
 
     const [replacedDefaultForm, setReplacedDefaultForm, refReplacedDefaultForm] = useState(false);
+
+
+    useEffect(
+        () => {
+            const setUpdateDaoRef = async () => {
+                await loadProgramAddresses([
+                    process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID,
+                    process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID,
+                    process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID,
+                    process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
+                ]);
+
+                const dao_manager = (creatorType === 'anyone') ?
+                    process.env.NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID
+                    :
+                    process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID
+                    ;
+
+                const dao_manager_updater = (canUpdateDao === 'noone') ?
+                    ZERO_ADDRESS :
+                    (canUpdateDao === 'admin') ?
+                        daoAdmin :
+                        await programIdToAddress(
+                            process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID
+                        )
+                    ;
+                const voting_system_manager = (canVSUpdateList === 'noone') ?
+                    ZERO_ADDRESS :
+                    (canVSUpdateList === 'admin') ?
+                        vsAdmin :
+                        (creatorType === 'anyone') ?
+                            await programIdToAddress(
+                                process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
+                            ) :
+                            await programIdToAddress(
+                                process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
+                            )
+                    ;
+                const proposers_manager = (creatorType === 'anyone') ?
+                    null :
+                    (proposersUpdater === "admin") ?
+                        proposersAdmin :
+                        await programIdToAddress(
+                            process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
+                        );
+                console.log({ proposers_manager, proposersAdmin })
+                updateDaoParamsRef.current = {
+                    dao_manager,
+                    dao_manager_updater,
+                    voting_system_manager,
+                    proposers_manager
+                };
+            }
+            setUpdateDaoRef();
+        }
+        ,
+        [updateDaoParamsRef, creatorType, proposersUpdater, canUpdateDao, daoAdmin, canVSUpdateList, vsAdmin, proposersAdmin]
+    );
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -71,57 +128,6 @@ const UpdateDAO = ({
         }
         setIsUpdateLoading(true);
         try {
-            await loadProgramAddresses([
-                process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID,
-                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID,
-                process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID,
-                process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID,
-                process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
-            ]);
-
-
-            const dao_manager_updater = (canUpdateDao === 'noone') ?
-                ZERO_ADDRESS :
-                (canUpdateDao === 'admin') ?
-                    publicKey :
-                    await programIdToAddress(
-                        process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID
-                    )
-                ;
-            const voting_system_manager = (canVSUpdateList === 'noone') ?
-                ZERO_ADDRESS :
-                (canVSUpdateList === 'admin') ?
-                    publicKey :
-                    (creatorType === 'anyoone') ?
-                        await programIdToAddress(
-                            process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
-                        ) :
-                        await programIdToAddress(
-                            process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
-                        )
-                ;
-
-            const voting_system_params = (votingSystem === "yesNo") ?
-                `{quorum: ${quorum}u128}` :
-                votingSystemParams;
-            const proposers_manager = proposersUpdater === "admin" ?
-                publicKey :
-                await programIdToAddress(
-                    process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
-                );
-            await createDao(
-                publicKey,
-                governanceTokenID,
-                requestBulkTransactions,
-                voting_system,
-                voting_system_params,
-                await hashStruct(voting_system_params),
-                dao_manager_updater,
-                voting_system_manager,
-                creatorType === "anyone",
-                proposers_manager,
-                voting_system_id
-            );
             swal("Success", "DAO transaction was just submitted, check your wallet history.", "success");
             setIsUpdateLoading(false);
         } catch (e) {
@@ -135,11 +141,11 @@ const UpdateDAO = ({
             setCanVSUpdateList(defaultSettings.canVSUpdateList || 'noone');
             setCreatorType(defaultSettings.creatorType || 'anyone');
             setCanUpdateDao(defaultSettings.canUpdateDao || 'noone');
-            setGovernanceTokenID(defaultSettings.governanceTokenID || '');
+            setGovernanceTokenID(defaultSettings.governanceTokenID);
             setProposersUpdater(defaultSettings.proposersUpdater || 'admin');
-            setProposersAdmin(defaultSettings.proposersAdmin || '');
-            setDaoAdmin(defaultSettings.daoAdmin || '');
-            setVsAdmin(defaultSettings.vsAdmin || '');
+            setProposersAdmin(defaultSettings.proposersAdmin);
+            setDaoAdmin(defaultSettings.daoAdmin);
+            setVsAdmin(defaultSettings.vsAdmin);
             setReplacedDefaultForm(true);
         }
     }, [defaultSettings]);
@@ -245,8 +251,6 @@ const UpdateDAO = ({
                                     </TextField>
                                     {
                                         proposersUpdater === "admin"
-                                        && proposersAdmin != ""
-                                        && proposersAdmin != null
                                         && (
                                             <TextField
                                                 label="Admin address"
@@ -273,9 +277,7 @@ const UpdateDAO = ({
                                 <FormControlLabel value="vote" control={<Radio />} label="Members (Vote)" disabled={!canUpdateDaoSettings} />
                             </RadioGroup>
                             {
-                                canVSUpdateList === "admin" &&
-                                vsAdmin != "" &&
-                                vsAdmin != null && (
+                                canVSUpdateList === "admin" && (
                                     <TextField
                                         label="Admin address"
                                         variant="outlined"
@@ -300,9 +302,7 @@ const UpdateDAO = ({
                             </RadioGroup>
 
                             {
-                                canUpdateDao === "admin" &&
-                                daoAdmin != "" &&
-                                daoAdmin != null && (
+                                canUpdateDao === "admin" && (
                                     <TextField
                                         label="Admin address"
                                         variant="outlined"

@@ -60,16 +60,22 @@ export function ProposalsPage() {
                                 </tr>
                             </thead>
                             <tbody className="mt-5">
-                                <TableRow />
-                                <TableRow />
-                                <TableRow />
+                                <div
+                                    style={{
+                                        color: "grey",
+                                        marginTop: "15px"
+                                    }}
+                                >Incoming...</div>
+                                {false && (<>
+                                    <TableRow />
+                                    <TableRow />
+                                    <TableRow />
+                                </>)
+                                }
                             </tbody>
                         </table>
-                        <div className="flex justify-center gap-4 text-[22px]">
+                        <div className="flex justify-center gap-4 text-[18px]">
                             <div className="">1</div>
-                            <div className="">2</div>
-                            <div className="">...</div>
-                            <div className="">11</div>
                         </div>
                     </div>
                 </div>

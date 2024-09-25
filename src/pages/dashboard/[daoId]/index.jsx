@@ -16,7 +16,7 @@ import {
 export default function DashboardLayout({
     dao
 }) {
-    const [activeTab, setActiveTab] = useState("proposals");
+    const [activeTab, setActiveTab] = useState("daoCore");
     const isProposals = (activeTab === "proposals");
     const isDaoCore = (activeTab === "daoCore");
     useTailwindLayout();
@@ -27,16 +27,16 @@ export default function DashboardLayout({
                     {/* Dashboard Navigation */}
                     <div className="flex items-center gap-12">
                         <h1
-                            className={"cursor-pointer text-[36px] leading-[43.57px] text-[#0C0B3F] " + (isProposals ? "font-bold" : "font-[300]")}
-                            onClick={() => setActiveTab("proposals")}
-                        >
-                            Proposals
-                        </h1>
-                        <h1
                             className={"cursor-pointer text-[36px] leading-[43.57px] text-[#0C0B3F] " + (isDaoCore ? "font-bold" : "font-[300]")}
                             onClick={() => setActiveTab("daoCore")}
                         >
                             DAO Core
+                        </h1>
+                        <h1
+                            className={"cursor-pointer text-[36px] leading-[43.57px] text-[#0C0B3F] " + (isProposals ? "font-bold" : "font-[300]")}
+                            onClick={() => setActiveTab("proposals")}
+                        >
+                            Proposals
                         </h1>
                     </div >
                     {isProposals && <ProposalsFilters />}

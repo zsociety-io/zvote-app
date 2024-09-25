@@ -3,10 +3,15 @@ import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import useState from 'react-usestateref'
 import { useRef, useEffect } from "react"
 import Image from "next/image";
-import { ZERO_ADDRESS } from "@/lib/aleo/front";
+import { ZERO_ADDRESS, hashStruct, programIdToAddress } from "@/lib/aleo/front";
 import swal from "sweetalert";
 
-import { createApproveProposal, addApprovedProposer, addVotingSystem } from "@/lib/adapter/dashboard"
+import {
+    createApproveProposerProposal,
+    createVotingSystemProposal,
+    addApprovedProposer,
+    addVotingSystem
+} from "@/lib/adapter/dashboard"
 
 import {
     Container,
@@ -23,7 +28,7 @@ import {
     Box,
     InputAdornment,
 } from '@mui/material'; import { ThemeProvider, createTheme } from '@mui/material/styles';
-
+import { updateDaoManager } from "@/lib/adapter/dashboard"
 
 const theme = createTheme({
     palette: {
@@ -38,7 +43,46 @@ const theme = createTheme({
 });
 
 
-const ProposerModal = ({ inputProposer, setInputProposer, isOpen, onClose, onSubmit, }) => {
+const VotingSystemSelection = ({
+    votingSystems,
+    voteVS,
+    setVoteVS
+}) => {
+    return (<>
+        <hr
+            style={{
+                "border": "none",
+                "borderTop": "1px solid #333",
+                "color": "#333",
+                "overflow": "visible",
+                "textAlign": "center",
+                "height": "1px",
+                marginTop: "10px",
+                marginBottom: "15px"
+            }} />
+        <FormLabel>Proposal Voting System</FormLabel>
+        <TextField
+            margin="normal"
+            select
+            SelectProps={{ native: true }}
+            variant="outlined"
+            value={voteVS}
+            onChange={(e) => {
+                setVoteVS(e.target.value)
+            }}
+            required
+        >
+            {votingSystems.map(
+                (vs, index) => (
+                    <option value={index}>{vs.program_id} - {vs.params_str && vs.params_str.slice(0, 16) + (vs.params_str.length > 16 ? "..." : "")}</option>
+                )
+            )}
+        </TextField>
+    </>)
+}
+
+
+const ProposerModal = ({ isVote, votingSystems, voteVS, setVoteVS, removedProposer, inputProposer, setInputProposer, isOpen, onClose, onSubmit, }) => {
     const modalRef = useRef(null);  // Reference to the modal content
 
     useEffect(() => {
@@ -66,22 +110,32 @@ const ProposerModal = ({ inputProposer, setInputProposer, isOpen, onClose, onSub
             <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg">
                 <ThemeProvider theme={theme}>
                     <Container>
-                        <h1>Add Proposer</h1>
+                        <h1>{removedProposer == null ? "Add" : "Remove"} Proposer</h1>
                         <FormControl fullWidth margin="normal">
-                            <FormLabel>Proposer Address</FormLabel>
+                            <FormLabel>Proposer Address</FormLabel>{console.log({ whatIs_inputProposer: inputProposer })}
                             <TextField
                                 label="ie: aleo1..."
                                 variant="outlined"
-                                value={inputProposer}
+                                value={removedProposer == null ? inputProposer : removedProposer.address}
                                 onChange={(e) => setInputProposer(e.target.value)}
                                 fullWidth
                                 margin="normal"
                                 name="address"
                                 required
+                                disabled={removedProposer != null}
                             />
+                            {
+                                isVote && (
+                                    <VotingSystemSelection
+                                        votingSystems={votingSystems}
+                                        voteVS={voteVS}
+                                        setVoteVS={setVoteVS}
+                                    />
+                                )
+                            }
                         </FormControl>
                         <Button onClick={onSubmit} style={{ padding: "4px", borderRadius: "50px", background: "#0a093d", color: "#ffffff", fontSize: "14px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            {"Add"}
+                            {isVote ? "Propose To " : ""}{removedProposer == null ? "Add" : "Remove"}
                         </Button>
                     </Container>
                 </ThemeProvider>
@@ -91,7 +145,8 @@ const ProposerModal = ({ inputProposer, setInputProposer, isOpen, onClose, onSub
 };
 
 
-const VotingSystemModal = ({ inputVS, setInputVS, inputVSParams, setInputVSParams, isOpen, onClose, onSubmit, }) => {
+
+const VotingSystemModal = ({ isVote, removedVs, votingSystems, voteVS, setVoteVS, inputVS, setInputVS, inputVSParams, setInputVSParams, isOpen, onClose, onSubmit, }) => {
     const modalRef = useRef(null);  // Reference to the modal content
 
     useEffect(() => {
@@ -119,33 +174,44 @@ const VotingSystemModal = ({ inputVS, setInputVS, inputVSParams, setInputVSParam
             <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg">
                 <ThemeProvider theme={theme}>
                     <Container>
-                        <h1>Add Voting System</h1>
+                        <h1>{removedVs == null ? "Add" : "Remove"} Voting System</h1>
                         <FormControl fullWidth margin="normal">
                             <FormLabel>Program ID</FormLabel>
                             <TextField
                                 label="ie: voting_system.aleo"
                                 variant="outlined"
-                                value={inputVS}
+                                value={removedVs == null ? inputVS : removedVs.program_id}
                                 onChange={(e) => setInputVS(e.target.value)}
                                 fullWidth
                                 margin="normal"
-                                name="address"
+                                name="aleo_address"
                                 required
+                                disabled={removedVs != null}
                             />
                             <FormLabel>Parameters Struct</FormLabel>
                             <TextField
                                 label="ie: { quorum: 1000u128 }"
                                 variant="outlined"
-                                value={inputVSParams}
+                                value={removedVs == null ? inputVSParams : removedVs.params_str}
                                 onChange={(e) => setInputVSParams(e.target.value)}
                                 fullWidth
                                 margin="normal"
-                                name="address"
+                                name="parameters_struct"
                                 required
+                                disabled={removedVs != null}
                             />
+                            {
+                                isVote && (
+                                    <VotingSystemSelection
+                                        votingSystems={votingSystems}
+                                        voteVS={voteVS}
+                                        setVoteVS={setVoteVS}
+                                    />
+                                )
+                            }
                         </FormControl>
                         <Button onClick={onSubmit} style={{ padding: "4px", borderRadius: "50px", background: "#0a093d", color: "#ffffff", fontSize: "14px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            {"Add"}
+                            {isVote ? "Propose To " : ""}{removedVs == null ? "Add" : "Remove"}
                         </Button>
                     </Container>
                 </ThemeProvider>
@@ -153,6 +219,7 @@ const VotingSystemModal = ({ inputVS, setInputVS, inputVSParams, setInputVSParam
         </div >
     );
 };
+
 
 const TableItem = ({ name, index, userCanAddProposers, onTrashClicked, canTrash, ...props }) => {
     const isVs = (props.paramsStr != null);
@@ -229,18 +296,18 @@ const TableItem = ({ name, index, userCanAddProposers, onTrashClicked, canTrash,
     );
 };
 
-const settingsFromDao = (dao, publicKey) => {
+const settingsFromDao = (dao) => {
     console.log(dao)
     const daom = dao?.dao_manager;
     const creatorType = (
         (daom?.program_id === process.env.NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID) ?
-            "anyoone" :
+            "anyone" :
             (daom?.program_id === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID) ?
                 "definedList" :
                 daom?.program_id || daom?.address
     );
     const proposersUpdater = (
-        (daom?.proposers_manager?.address === process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID) ?
+        (daom?.proposers_manager?.program_id === process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID) ?
             "vote" :
             "admin"
     );
@@ -255,20 +322,20 @@ const settingsFromDao = (dao, publicKey) => {
                 'admin'
     );
     const canUpdateDao = (
-        (daom?.dao_manager_updater.address === ZERO_ADDRESS) ?
+        (daom?.dao_manager_updater?.address === ZERO_ADDRESS) ?
             'noone' :
-            (daom?.dao_manager_updater.program_id === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID) ?
+            (daom?.dao_manager_updater?.program_id === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID) ?
                 'vote' :
                 'admin'
     );
     const proposersAdmin = (proposersUpdater === "admin") ?
-        daom?.proposers_manager.address :
+        daom?.proposers_manager?.address :
         null
     const vsAdmin = (canVSUpdateList === "admin") ?
-        daom?.voting_system_manager.address :
+        daom?.voting_system_manager?.address :
         null;
     const daoAdmin = (canUpdateDao === "admin") ?
-        daom?.dao_manager_updater.address :
+        daom?.dao_manager_updater?.address :
         null;
     const governanceTokenID = dao?.token_id;
     return {
@@ -286,7 +353,7 @@ const settingsFromDao = (dao, publicKey) => {
 
 export function DaoCorePage({ dao }) {
     const { publicKey, requestTransaction, requestBulkTransactions } = useWallet();
-    const daoSettings = settingsFromDao(dao, publicKey);
+    const daoSettings = settingsFromDao(dao);
 
     const [isUpdateLoading, setIsUpdateLoading, refIsUpdateLoading] = useState(false);
     const [isUpdateEdited, setIsUpdateEdited, refIsUpdateEdited] = useState(false);
@@ -294,14 +361,30 @@ export function DaoCorePage({ dao }) {
     const [inputVSParams, setInputVSParams] = useState("");
     const [inputProposer, setInputProposer] = useState("");
 
+    const [voteVS, setVoteVS] = useState("");
+    const [removedVs, setRemovedVs] = useState(false);
+    const [removedProposer, setRemovedProposer] = useState(false);
+
     const [isVSModalOpen, setIsVSModalOpen] = useState(false);  // Modal state
     const [isProposerModalOpen, setIsProposerModalOpen] = useState(false);  // Modal state
 
     const userIsProposersAdmin = daoSettings?.proposersAdmin === publicKey && publicKey != null;
-    const userCanAddProposers = (userIsProposersAdmin || daoSettings?.proposersUpdater === "vote");
+    const userCanAddProposers = publicKey != null && (userIsProposersAdmin || daoSettings?.proposersUpdater === "vote");
+    console.log({ daoSettings })
 
     const userIsVsAdmin = daoSettings?.vsAdmin === publicKey && publicKey != null;
-    const userCanAddVs = (userIsVsAdmin || daoSettings?.canVSUpdateList === "vote");
+    const userCanAddVs = publicKey != null && (userIsVsAdmin || daoSettings?.canVSUpdateList === "vote");
+
+    const userIsDaoAdmin = daoSettings?.daoAdmin === publicKey && publicKey != null;
+    const userCanUpdateDao = publicKey != null && (userIsDaoAdmin || daoSettings?.canUpdateDao === "vote");
+
+
+    const updateDaoParamsRef = useRef({
+        dao_manager: null,
+        dao_manager_updater: null,
+        voting_system_manager: null,
+        proposers_manager: null,
+    });
 
     const addProposer = async (addOrRemove, proposer) => {
         if (!userCanAddProposers) {
@@ -317,8 +400,22 @@ export function DaoCorePage({ dao }) {
                     addOrRemove
                 );
             } else {
-                //await createApproveProposal();
+                const votingSystem = dao?.voting_systems?.[voteVS || 0];
+
+                const votingSystemAddress = votingSystem?.address;
+                const votingSystemParamsHash = votingSystem?.params_hash;
+
+                await createApproveProposerProposal(
+                    publicKey,
+                    requestTransaction,
+                    dao?.dao_id,
+                    addOrRemove ? inputProposer : proposer,
+                    votingSystemAddress,
+                    votingSystemParamsHash,
+                    addOrRemove
+                );
             }
+            await swal("Success", "Transaction broadcasted, check in your wallet to see progress.", "success");
         } catch (e) {
             await swal("Error", (e.message || e) + "", "error");
         }
@@ -328,21 +425,70 @@ export function DaoCorePage({ dao }) {
         if (!userCanAddVs) {
             return
         }
-        if (userIsVsAdmin) {
-            const votingSystemManager = dao?.dao_manager?.voting_system_manager?.program_id;
+        try {
+            const daoManager = dao?.dao_manager?.program_id;
+            if (userIsVsAdmin) {
+                await addVotingSystem(
+                    publicKey,
+                    requestBulkTransactions,
+                    daoManager,
+                    dao.dao_id,
+                    addOrRemove ? (await programIdToAddress(inputVS)) : vs,
+                    addOrRemove ? (await hashStruct(inputVSParams)) : vsParams,
+                    addOrRemove
+                );
+            } else {
+                const daoManager = dao?.dao_manager?.program_id;
+                const votingSystem = dao?.voting_systems?.[voteVS || 0];
 
-            await addVotingSystem(
-                publicKey,
-                requestBulkTransactions,
-                votingSystemManager,
-                dao.dao_id,
-                addOrRemove ? inputVS : vs,
-                addOrRemove ? inputVSParams : vsParams,
-                addOrRemove
-            );
+                const votingSystemAddress = votingSystem?.address;
+                const votingSystemParamsHash = votingSystem?.params_hash;
 
-        } else {
-            //await createApproveProposal();
+                const votingSystemManager =
+                    daoManager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID ?
+                        process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID :
+                        daoManager === process.env.NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID ?
+                            process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID :
+                            null;
+                await createVotingSystemProposal(
+                    publicKey,
+                    requestBulkTransactions,
+                    votingSystemManager,
+                    dao?.dao_id,
+                    addOrRemove ? (await programIdToAddress(inputVS)) : vs,
+                    addOrRemove ? (await hashStruct(inputVSParams)) : vsParams,
+                    votingSystemAddress,
+                    votingSystemParamsHash,
+                    addOrRemove
+                );
+            }
+            await swal("Success", "Transaction broadcasted, check in your wallet to see progress.", "success");
+        } catch (e) {
+            await swal("Error", (e.message || e) + "", "error");
+        }
+    }
+
+    const updateDao = async () => {
+        if (!userCanUpdateDao) {
+            return
+        }
+        try {
+            if (userIsDaoAdmin) {
+                await updateDaoManager(
+                    dao,
+                    publicKey,
+                    requestTransaction,
+                    dao.dao_id,
+                    updateDaoParamsRef.current.dao_manager,
+                    updateDaoParamsRef.current.dao_manager_updater,
+                    updateDaoParamsRef.current.voting_system_manager,
+                    updateDaoParamsRef.current.proposers_manager,
+                );
+            } else {
+                //await createApproveProposal();
+            }
+        } catch (e) {
+            await swal("Error", (e.message || e) + "", "error");
         }
     }
 
@@ -386,17 +532,19 @@ export function DaoCorePage({ dao }) {
                                     Loading
                                 </div>
                             )}
-                            {!isUpdateLoading && refIsUpdateEdited.current && (
-                                <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
+                            {!isUpdateLoading && userCanUpdateDao && refIsUpdateEdited.current && (
+                                <button
+                                    onClick={updateDao}
+                                    className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                                     <span className="text-[36px]"> <Image width={20} src={require("@/img/save.svg").default} alt="link" /></span>
                                     Update Settings
-                                </div>
+                                </button>
                             )}
-                            {!isUpdateLoading && !refIsUpdateEdited.current && (
-                                <div className="cursor-default text-[#858585] text-[12px] font-extrabold flex items-center gap-2 !bg-[#E5E6ED] rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
+                            {!isUpdateLoading && (!refIsUpdateEdited.current || !userCanUpdateDao) && (
+                                <button className="cursor-default text-[#858585] text-[12px] font-extrabold flex items-center gap-2 !bg-[#E5E6ED] rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                                     <span className="text-[36px]"> <Image width={20} src={require("@/img/save-grey.svg").default} alt="link" /></span>
                                     Update Settings
-                                </div>
+                                </button>
                             )}
                         </button>
                     </div>
@@ -405,6 +553,7 @@ export function DaoCorePage({ dao }) {
                         setIsUpdateLoading={setIsUpdateLoading}
                         defaultSettings={daoSettings}
                         setIsUpdateEdited={setIsUpdateEdited}
+                        updateDaoParamsRef={updateDaoParamsRef}
                     />
                 </div>
 
@@ -415,7 +564,10 @@ export function DaoCorePage({ dao }) {
                             Voting Systems
                         </h2>
                         {userCanAddVs && (
-                            <button type="button" onClick={() => setIsVSModalOpen(true)}>
+                            <button type="button" onClick={() => {
+                                setRemovedVs(null);
+                                setIsVSModalOpen(true);
+                            }}>
                                 <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                                     <span className="text-[36px]">+</span>
                                     Add Voting System
@@ -435,12 +587,19 @@ export function DaoCorePage({ dao }) {
                                 dao.voting_systems.map(
                                     (voting_system, index) => {
                                         return <TableItem
-                                            paramsStr={voting_system?.paramsStr}
-                                            name={voting_system.program_id || voting_system.address}
+                                            paramsStr={voting_system?.params_str}
+                                            name={voting_system.program_id}
                                             index={index}
                                             canTrash={userCanAddVs}
                                             onTrashClicked={
-                                                () => addVS(false)
+                                                () => {
+                                                    if (daoSettings?.canVSUpdateList === "vote") {
+                                                        setRemovedVs(voting_system);
+                                                        setIsVSModalOpen(true);
+                                                    } else {
+                                                        addVS(false, voting_system.address, voting_system?.params_hash)
+                                                    }
+                                                }
                                             } />
                                     }
                                 )
@@ -466,9 +625,12 @@ export function DaoCorePage({ dao }) {
                             <h2 className="text-[28px] font-medium text-[#0C0B3F]">
                                 Allowed Proposers
                             </h2>
-
                             {userCanAddProposers && (
-                                <button type="button" onClick={() => setIsProposerModalOpen(true)}>
+                                <button type="button" onClick={() => {
+                                    setRemovedProposer(null);
+                                    setIsProposerModalOpen(true)
+                                }
+                                }>
                                     <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                                         <span className="text-[36px]">+</span>
                                         Add proposer
@@ -487,8 +649,15 @@ export function DaoCorePage({ dao }) {
                                 {
                                     dao?.dao_manager?.proposers && dao?.dao_manager?.proposers.map(
                                         (proposer, index) => {
-                                            return <TableItem address={proposer.address} name={proposer.address} index={index} userCanAddProposers={userCanAddProposers} onTrashClicked={
-                                                () => addProposer(false, proposer.address)
+                                            return <TableItem name={proposer?.program_id || proposer?.address} address={proposer.address} index={index} userCanAddProposers={userCanAddProposers} onTrashClicked={
+                                                () => {
+                                                    if (daoSettings?.proposersUpdater === "vote") {
+                                                        setRemovedProposer(proposer);
+                                                        setIsProposerModalOpen(true);
+                                                    } else {
+                                                        addProposer(false, proposer.address);
+                                                    }
+                                                }
                                             } canTrash={userCanAddProposers} />
                                         }
                                     )
@@ -517,6 +686,12 @@ export function DaoCorePage({ dao }) {
                 setInputVS={setInputVS}
                 inputVSParams={inputVSParams}
                 setInputVSParams={setInputVSParams}
+
+                isVote={daoSettings?.canVSUpdateList === "vote"}
+                votingSystems={dao.voting_systems}
+                voteVS={voteVS}
+                setVoteVS={setVoteVS}
+                removedVs={removedVs}
             />
             <ProposerModal
                 isOpen={isProposerModalOpen}
@@ -524,6 +699,12 @@ export function DaoCorePage({ dao }) {
                 onSubmit={handleProposerModalSubmit}
                 inputProposer={inputProposer}
                 setInputProposer={setInputProposer}
+
+                isVote={daoSettings?.proposersUpdater === "vote"}
+                votingSystems={dao.voting_systems}
+                voteVS={voteVS}
+                setVoteVS={setVoteVS}
+                removedProposer={removedProposer}
             />
         </>
     );

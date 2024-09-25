@@ -30,7 +30,6 @@ function Navigation({ }) {
           stickyMenu.classList.remove("sticky");
         }
       }
-
       const scrollToTopButton = document.getElementById("scrollToTop");
 
       if (scrollToTopButton) {
@@ -40,17 +39,13 @@ function Navigation({ }) {
           scrollToTopButton.style.display = "none";
         }
       }
-
-
     };
-
     window.addEventListener("scroll", handleScroll);
-
     // Clean up the event listener on component unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [hideFollow]);
 
 
   return (

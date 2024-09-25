@@ -72,6 +72,7 @@ export const getTokenData = async (token_id) => {
 
 
 export const formatAleoString = (aleoString) => {
+  if (aleoString?.replace == null) return null
   const keyValueRegex = /([a-zA-Z0-9_]+)(\s*):(\s*)([a-zA-Z0-9_.]+)/g;
   const objectArrayRegex = /([a-zA-Z0-9_]+)(\s*):(\s*)(\{|\[)/g;
   const arrayElementRegex = /(\[|,)(\s*)([a-zA-Z0-9_.]+)/g;

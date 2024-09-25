@@ -44,3 +44,19 @@ export const getMappingValue = async (
     return null;
   }
 }
+
+
+export const addressToProgramId = async (
+  address
+) => {
+  try {
+    const url = (
+      `${process.env.ALEOSCAN_API_URL}/address/program_id/`
+      + `${address}`
+
+    );
+    return await (await fetch(url)).json();
+  } catch (e) {
+    return null;
+  }
+}

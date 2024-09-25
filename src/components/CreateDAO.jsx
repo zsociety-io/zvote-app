@@ -102,7 +102,7 @@ const CreateDAO = (props) => {
                 ZERO_ADDRESS :
                 (canVSUpdateList === 'admin') ?
                     publicKey :
-                    (creatorType === 'anyoone') ?
+                    (creatorType === 'anyone') ?
                         await programIdToAddress(
                             process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
                         ) :

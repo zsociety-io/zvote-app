@@ -69,6 +69,15 @@ export const createDao = async (
     referenceParamsTransaction
   ]);
 
-
-
 }
+
+
+/*
+previous_dao_manager/update_dao_manager(dao_id, new_dao_manager)
+new_dao_manager/init_as_dao_manager(
+  dao_id,
+  dao_manager_updater,
+  voting_system_manager,
+  proposers_manager
+)
+*/
