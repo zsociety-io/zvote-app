@@ -106,11 +106,8 @@ function ConnectBtn(props) {
 
     const connectSemiDapp = async () => {
         try {
-            console.log("plop")
             const handshake_token = await get_request(`/api/session/handshake/${publicKey}`);
-            console.log(handshake_token)
             const message = prepareSignedMessage(handshake_token.token, handshake_token.time);
-            console.log(message)
             const signature = await signMessage(
                 new TextEncoder().encode(message)
             );
@@ -119,7 +116,6 @@ function ConnectBtn(props) {
                 signature: new TextDecoder().decode(signature),
                 publicKey
             };
-            console.log(signedMessage)
             const signedMessageStr = encodeURIComponent(JSON.stringify(signedMessage));
             const reponseBackEndGenerateSessionToken = await get_request(`/api/session/create/${signedMessageStr}`);
             setWalletCookie(selectedWallet, frontCookieOptions);

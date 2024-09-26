@@ -3,7 +3,7 @@ import {
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
 import { random_from_type, } from "@/lib/aleo/front.js";
-
+import { getMappingValue } from "@/lib/aleo/aleoscan";
 
 export const createDao = async (
   publicKey,
@@ -52,8 +52,10 @@ export const createDao = async (
     fee,
     false
   );
-  const feeReferenceParamsTransaction = 1_000_000;
 
+  const transactions = [createTransaction];
+
+  const feeReferenceParamsTransaction = 1_000_000;
   const referenceParamsTransaction = Transaction.createTransaction(
     publicKey,
     WalletAdapterNetwork.TestnetBeta,
@@ -63,11 +65,14 @@ export const createDao = async (
     feeReferenceParamsTransaction,
     false
   );
+  const referencedAlready = null !== await getMappingValue(
+    voting_system_program_id, "voting_system_params", initial_vs_params_hash
+  );
+  if (referencedAlready) {
+    transactions.push(referenceParamsTransaction);
+  }
 
-  await requestBulkTransactions([
-    createTransaction,
-    referenceParamsTransaction
-  ]);
+  await requestBulkTransactions(transactions);
 
 }
 

@@ -105,7 +105,6 @@ const DAOsList = () => {
     try {
       const newDaos = await get_request(`/api/contract/daos/${publicKey}`);
       setDaos(newDaos);
-      console.log(JSON.stringify(newDaos, null, 2))
     } catch (error) {
       console.error('Failed to load DAOs:', error);
     } finally {

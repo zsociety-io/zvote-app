@@ -78,7 +78,8 @@ const CreateDAO = (props) => {
         try {
             await loadProgramAddresses([
                 process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID,
-                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID,
+                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID,
                 process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID,
                 process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID,
                 process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
@@ -95,7 +96,9 @@ const CreateDAO = (props) => {
                 (canUpdateDao === 'admin') ?
                     publicKey :
                     await programIdToAddress(
-                        process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID
+                        (creatorType === 'anyone') ?
+                            process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID :
+                            process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID
                     )
                 ;
             const voting_system_manager = (canVSUpdateList === 'noone') ?

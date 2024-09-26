@@ -68,7 +68,8 @@ const UpdateDAO = ({
         () => {
             const setUpdateDaoRef = async () => {
                 await loadProgramAddresses([
-                    process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID,
+                    process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID,
+                    process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID,
                     process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID,
                     process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID,
                     process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
@@ -85,7 +86,9 @@ const UpdateDAO = ({
                     (canUpdateDao === 'admin') ?
                         daoAdmin :
                         await programIdToAddress(
-                            process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_PROGRAM_ID
+                            (creatorType === 'anyone') ?
+                                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID :
+                                process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID
                         )
                     ;
                 const voting_system_manager = (canVSUpdateList === 'noone') ?
@@ -107,7 +110,6 @@ const UpdateDAO = ({
                         await programIdToAddress(
                             process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID
                         );
-                console.log({ proposers_manager, proposersAdmin })
                 updateDaoParamsRef.current = {
                     dao_manager,
                     dao_manager_updater,
@@ -163,20 +165,6 @@ const UpdateDAO = ({
                 defaultSettings?.vsAdmin !== vsAdmin
             )
         );
-        console.log({
-            formEdited, defaultSettings, states: {
-                canVSUpdateList,
-                creatorType,
-                canUpdateDao,
-                governanceTokenID,
-                proposersUpdater,
-                proposersAdmin,
-                daoAdmin,
-                vsAdmin,
-                defaultSettings,
-                setIsUpdateEdited
-            }
-        })
         setIsUpdateEdited(formEdited);
     }, [
         canVSUpdateList,

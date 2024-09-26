@@ -41,7 +41,7 @@ export default function DashboardLayout({
                     </div >
                     {isProposals && <ProposalsFilters />}
                 </div>
-                {isProposals && <ProposalsPage />}
+                {isProposals && <ProposalsPage dao={dao} />}
                 {isDaoCore && <DaoCorePage dao={dao} />}
             </div>
         </>

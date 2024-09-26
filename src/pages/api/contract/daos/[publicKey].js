@@ -12,7 +12,6 @@ async function get_handler(req, res) {
   const daos = await getAddressDaos(
     req.query.publicKey
   );
-  console.log({ daos })
   await res.status(200).json(
     daos
   );

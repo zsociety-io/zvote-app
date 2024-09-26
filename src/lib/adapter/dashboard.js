@@ -4,7 +4,7 @@ import {
 } from '@demox-labs/aleo-wallet-adapter-base';
 import { random_from_type, } from "@/lib/aleo/front.js";
 
-
+import { getMappingValue, addressToProgramId } from "@/lib/aleo/aleoscan";
 
 export const addApprovedProposer = async (
   publicKey,
@@ -79,7 +79,6 @@ export const createApproveProposerProposal = async (
 
 
 
-
 export const addVotingSystem = async (
   publicKey,
   requestBulkTransactions,
@@ -87,7 +86,8 @@ export const addVotingSystem = async (
   dao_id,
   voting_system,
   vs_params_hash,
-  isAdd
+  isAdd,
+  inputVSParams
 ) => {
   const programId = daoManager;
   const functionName = isAdd ? 'add_voting_system' : 'remove_voting_system';
@@ -110,9 +110,34 @@ export const addVotingSystem = async (
     false
   );
 
-  await requestBulkTransactions([
-    createTransaction,
-  ]);
+  const transactions = [createTransaction];
+
+  if (isAdd) {
+    const feeReferenceParamsTransaction = 1_000_000;
+
+    const voting_system_program_id = await addressToProgramId(voting_system);
+    const referenceParamsTransaction = Transaction.createTransaction(
+      publicKey,
+      WalletAdapterNetwork.TestnetBeta,
+      voting_system_program_id,
+      "reference_voting_system_params",
+      [inputVSParams],
+      feeReferenceParamsTransaction,
+      false
+    );
+    const notReferencedYet = (
+      null === await getMappingValue(
+        voting_system_program_id,
+        "voting_system_params",
+        vs_params_hash
+      )
+    );
+    if (notReferencedYet) {
+      transactions.push(referenceParamsTransaction);
+    }
+  }
+
+  await requestBulkTransactions(transactions);
 }
 
 
@@ -125,13 +150,13 @@ export const createVotingSystemProposal = async (
   proposed_vs_params_hash,
   voting_system,
   vs_params_hash,
-  is_add
+  is_add,
+  inputVSParams
 ) => {
   const programId = votingSystemManager;
   const functionName = 'create_approve_proposal';
   const fee = 1_000_000;
 
-  console.log({ votingSystemManager })
   const proposal_id = random_from_type("field");
 
   const parsedInputs = [
@@ -155,9 +180,33 @@ export const createVotingSystemProposal = async (
     false
   );
 
-  await requestBulkTransactions([
-    createTransaction,
-  ]);
+  const transactions = [createTransaction];
+
+  if (is_add) {
+    const feeReferenceParamsTransaction = 1_000_000;
+    const voting_system_program_id = await addressToProgramId(proposed_voting_system);
+    const referenceParamsTransaction = Transaction.createTransaction(
+      publicKey,
+      WalletAdapterNetwork.TestnetBeta,
+      voting_system_program_id,
+      "reference_voting_system_params",
+      [inputVSParams],
+      feeReferenceParamsTransaction,
+      false
+    );
+    const notReferencedYet = (
+      null === await getMappingValue(
+        voting_system_program_id,
+        "voting_system_params",
+        proposed_vs_params_hash
+      )
+    );
+    if (notReferencedYet) {
+      transactions.push(referenceParamsTransaction);
+    }
+  }
+
+  await requestBulkTransactions(transactions);
 }
 
 
@@ -192,14 +241,6 @@ export const updateDaoManager = async (
     parsedInputs.push(proposersManager)
   }
 
-  console.log({
-    publicKey,
-    net: WalletAdapterNetwork.TestnetBeta,
-    programId,
-    functionName,
-    parsedInputs,
-    fee,
-  })
   const createTransaction = Transaction.createTransaction(
     publicKey,
     WalletAdapterNetwork.TestnetBeta,

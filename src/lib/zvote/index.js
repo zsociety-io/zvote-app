@@ -6,6 +6,7 @@ import { programIdToAddress } from "@/lib/aleo";
 
 export const getAddressDaos = async (publicKey) => {
   const daos = await getAllDaos();
+
   const ownedTokens = await getUserTokens(
     publicKey,
     daos.map(dao => dao.token_id)
@@ -138,7 +139,34 @@ export const getDaoVotingSystems = async (daoId) => {
   return loaded_voting_systems;
 }
 
-
+const loadProposalContent = async (proposal) => {
+  const contentProgramId = await addressToProgramId(proposal.content);
+  if (contentProgramId == null) {
+    return {
+      value: proposal.content,
+      program_id: null,
+      address: null
+    };
+  }
+  const value_str = await getMappingValue(
+    contentProgramId,
+    "proposal_contents",
+    proposal.proposal_key_hash
+  );
+  let value = null;
+  try {
+    value = JSON.parse(formatAleoString(value_str));
+  } catch (e) { }
+  return {
+    ...proposal,
+    content: {
+      program_id: contentProgramId,
+      address: proposal.content,
+      value_str,
+      value
+    }
+  }
+}
 
 
 export const getAllProposals = async (daoId) => {
@@ -162,7 +190,7 @@ export const getAllProposals = async (daoId) => {
           const vs_params_hash = proposal.vs_params_hash;
           delete proposal.vs_params_hash;
           return {
-            ...proposal,
+            ...await loadProposalContent(proposal),
             voting_system: await loadVotingSystem({
               address: proposal.voting_system,
               params_hash: vs_params_hash,
@@ -173,7 +201,6 @@ export const getAllProposals = async (daoId) => {
       )
   );
 
-  console.log({ proposals })
   return proposals;
 }
 
@@ -224,11 +251,22 @@ export const getAllDaos = async (daoIdFilterList) => {
 export const loadManagers = async (dao) => {
   dao.dao_manager = {
     address: dao.dao_manager,
-    program_id: await addressToProgramId(dao.dao_manager)
+    program_id: await addressToProgramId(dao.dao_manager),
+    params_hash: dao.dao_manager_params_hash,
   };
   if (dao.dao_manager.program_id == null) {
     return dao;
   }
+  const dao_manager_params = await getMappingValue(
+    dao.dao_manager.program_id,
+    "dao_manager_params",
+    dao.dao_manager_params_hash
+  );
+  if (dao_manager_params == null) { return }
+  dao.dao_manager.params_str = dao_manager_params;
+  dao.dao_manager.params = JSON.parse(formatAleoString(dao_manager_params));
+
+  delete dao.dao_manager_params_hash;
 
   await Promise.all([
     loadDaoManagerUpdater(dao),
@@ -241,11 +279,7 @@ export const loadManagers = async (dao) => {
 }
 
 export const loadDaoManagerUpdater = async (dao) => {
-  const dao_manager_updater_address = await getMappingValue(
-    dao.dao_manager.program_id,
-    "dao_manager_updaters",
-    dao.dao_id
-  );
+  const dao_manager_updater_address = dao.dao_manager.params.dao_manager_updater;
   dao.dao_manager.dao_manager_updater = {
     address: dao_manager_updater_address,
     program_id: await addressToProgramId(dao_manager_updater_address)
@@ -253,25 +287,15 @@ export const loadDaoManagerUpdater = async (dao) => {
 }
 
 export const loadVotingSystemManager = async (dao) => {
-  const voting_system_manager_address = await getMappingValue(
-    dao.dao_manager.program_id,
-    "voting_system_managers",
-    dao.dao_id
-  );
+  const voting_system_manager_address = dao.dao_manager.params.voting_system_manager;
   dao.dao_manager.voting_system_manager = {
     address: voting_system_manager_address,
     program_id: await addressToProgramId(voting_system_manager_address)
   };
 }
 
-
-
 export const loadAPLDao = async (dao) => {
-  const proposers_manager_address = await getMappingValue(
-    process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID,
-    "proposers_managers",
-    dao.dao_id
-  );
+  const proposers_manager_address = dao.dao_manager.params.proposers_manager;
   dao.dao_manager.proposers_manager = {
     address: proposers_manager_address,
     program_id: await addressToProgramId(proposers_manager_address)

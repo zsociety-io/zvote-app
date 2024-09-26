@@ -9,7 +9,7 @@ export const listProgramMappingValues = async (
   let result = [];
   while (true) {
     const url = (
-      `${process.env.ALEOSCAN_API_URL}/mapping/list_program_mapping_values/`
+      `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/mapping/list_program_mapping_values/`
       + `${programId}/${mappingId}`
       + `?count=${count}`
       + (cursor != null ? `&cursor=${cursor}` : ``)
@@ -35,7 +35,7 @@ export const getMappingValue = async (
 ) => {
   try {
     const url = (
-      `${process.env.ALEOSCAN_API_URL}/mapping/get_value/`
+      `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/mapping/get_value/`
       + `${programId}/${mappingId}/${key}`
 
     );
@@ -51,7 +51,7 @@ export const addressToProgramId = async (
 ) => {
   try {
     const url = (
-      `${process.env.ALEOSCAN_API_URL}/address/program_id/`
+      `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/address/program_id/`
       + `${address}`
 
     );

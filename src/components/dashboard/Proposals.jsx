@@ -1,11 +1,20 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-const TableRow = () => {
+
+const proposalTypesLabels = {
+    "vsu": "Voting Systems Update",
+    "psu": "Proposers Update",
+    "daou": "Settings Update",
+    "default": "Default"
+};
+
+const TableRow = ({ proposal }) => {
     return (
         <tr className="mt-5">
             <td className="text-[18px] pt-3 ">Create Gouv...</td>
-            <td className="text-[18px] pt-3 ">10/250</td>
+            <td className="text-[18px] pt-3 ">{proposalTypesLabels?.[proposal.type]}</td>
+            <td className="text-[18px] pt-3 text-[#959595]">04/09/25</td>
             <td className="pt-3">
                 <div className="flex flex-start">
                     <div className="leading-normal text-[#8A8A8A] text-[12px] font-bold border border-[#ADADAD] rounded-full px-3 py-0.5 bg-[#ECECEC]">
@@ -13,23 +22,53 @@ const TableRow = () => {
                     </div>
                 </div>
             </td>
-            <td className="text-[18px] pt-3 ">Standard</td>
-            <td className="text-[18px] pt-3 text-[#959595]">04/09/25</td>
+            <td className="text-[18px] pt-3 ">10/250</td>
         </tr>
     );
 };
 
-export function ProposalsPage() {
+const proposalToProposalData = (proposals) => {
+    return proposals.map(
+        (proposal) => {
+            const pid = proposal.content.program_id;
+            const type = (
+                pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
+                || pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
+            ) ?
+                "vsu" :
+                (
+                    pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID
+                    || pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID
+                ) ?
+                    "daou" :
+                    pid === process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID ?
+                        "psu"
+                        :
+                        "default";
+            return {
+                ...proposal,
+                type,
+            };
+        }
+    );
+}
+
+export function ProposalsPage({ dao }) {
     const [activeTab, setActiveTab] = useState("all");
+
+    const proposals = proposalToProposalData(dao.proposals);
     return (
         <>
             <div className="grid grid-cols-4 gap-[32px] mt-[18px] text-[#0C0B3F]">
                 <div className="col-span-1">
                     <div className="py-[25px] px-[35px] bg-white rounded-[15px] border border-[#D5D5D5]">
 
-                        <ul className="flex flex-col gap-4 mt-4 text-[18px] font-medium">
+                        <ul className="flex flex-col gap-4 mt-2 mb-3 text-[18px] font-medium">
                             <li>
                                 <Link href="#" className={activeTab === "all" ? "font-black" : ""} onClick={() => setActiveTab("all")}>All Proposals</Link>
+                            </li>
+                            <li>
+                                <Link href="#" className={activeTab === "default" ? "font-black" : ""} onClick={() => setActiveTab("default")}>Default Proposals</Link>
                             </li>
                             <li>
                                 <Link href="#" className={activeTab === "vsu" ? "font-black" : ""} onClick={() => setActiveTab("vsu")}>Voting Systems Update</Link>
@@ -38,10 +77,7 @@ export function ProposalsPage() {
                                 <Link href="#" className={activeTab === "psu" ? "font-black" : ""} onClick={() => setActiveTab("psu")}>Proposers Update</Link>
                             </li>
                             <li>
-                                <Link href="#" className={activeTab === "stu" ? "font-black" : ""} onClick={() => setActiveTab("stu")}>Settings Update</Link>
-                            </li>
-                            <li>
-                                <Link href="#" className={activeTab === "other" ? "font-black" : ""} onClick={() => setActiveTab("other")}>Other Proposals</Link>
+                                <Link href="#" className={activeTab === "daou" ? "font-black" : ""} onClick={() => setActiveTab("daou")}>Settings Update</Link>
                             </li>
                         </ul>
                     </div>
@@ -53,25 +89,14 @@ export function ProposalsPage() {
                             <thead className="border-b">
                                 <tr className="text-[18px] font-medium text-[#5F5F5F]">
                                     <th className="pb-4">Name</th>
-                                    <th className="pb-4">For Votes/Quorum</th>
-                                    <th className="pb-4">Status</th>
                                     <th className="pb-4">Type</th>
                                     <th className="pb-4">Created At</th>
+                                    <th className="pb-4">Status</th>
+                                    <th className="pb-4">For Votes/Quorum</th>
                                 </tr>
                             </thead>
                             <tbody className="mt-5">
-                                <div
-                                    style={{
-                                        color: "grey",
-                                        marginTop: "15px"
-                                    }}
-                                >Incoming...</div>
-                                {false && (<>
-                                    <TableRow />
-                                    <TableRow />
-                                    <TableRow />
-                                </>)
-                                }
+                                {proposals.map((proposal) => (<TableRow proposal={proposal} />))}
                             </tbody>
                         </table>
                         <div className="flex justify-center gap-4 text-[18px]">
