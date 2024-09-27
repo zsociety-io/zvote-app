@@ -19,6 +19,7 @@ export default function DashboardLayout({
     const [activeTab, setActiveTab] = useState("daoCore");
     const isProposals = (activeTab === "proposals");
     const isDaoCore = (activeTab === "daoCore");
+    const [statusFilter, setStatusFilter] = useState("all");
     useTailwindLayout();
     return (
         <>
@@ -41,7 +42,7 @@ export default function DashboardLayout({
                     </div >
                     {isProposals && <ProposalsFilters />}
                 </div>
-                {isProposals && <ProposalsPage dao={dao} />}
+                {isProposals && <ProposalsPage dao={dao} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />}
                 {isDaoCore && <DaoCorePage dao={dao} />}
             </div>
         </>

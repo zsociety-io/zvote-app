@@ -1,5 +1,5 @@
 import { listProgramMappingValues, getMappingValue, addressToProgramId } from "@/lib/aleo/aleoscan";
-import { formatAleoString, getUserBalance, getTokenData } from "@/lib/aleo";
+import { formatAleoString, getUserBalance, getTokenData, hashStruct } from "@/lib/aleo";
 import { programIdToAddress } from "@/lib/aleo";
 
 
@@ -82,7 +82,7 @@ export const getDao = async (daoId) => {
 const cachedAddressToProgramId = {};
 const cachedHashToParams = {};
 
-const loadVotingSystem = async (voting_system) => {
+const getVotingSystem = async (voting_system) => {
   const address = voting_system.address;
   if (cachedAddressToProgramId?.[address] == null) {
     cachedAddressToProgramId[address] =
@@ -111,6 +111,38 @@ const loadVotingSystem = async (voting_system) => {
 }
 
 
+const getProposalScores = async (proposal) => {
+  const score_key_0 = hashStruct(`{dao_id: ${proposal?.dao_id}, proposal_id: ${proposal?.proposal_id}, candidate_id: ${"0field"}}`);
+  const score_key_1 = hashStruct(`{dao_id: ${proposal?.dao_id}, proposal_id: ${proposal?.proposal_id}, candidate_id: ${"0field"}}`);
+  console.log(proposal?.voting_system?.program_id)
+  console.log(proposal?.voting_system?.params)
+  const [score_value_0, score_value_1] = await Promise.all([
+    getMappingValue(
+      proposal?.voting_system?.program_id,
+      "scores",
+      score_key_0
+    ) || null,
+    getMappingValue(
+      proposal?.voting_system?.program_id,
+      "scores",
+      score_key_1
+    ) || null,
+  ]);
+  console.log({ score_value_0, score_value_1 })
+  /*
+  const params_str = cachedHashToParams?.[voting_system.params_hash];
+
+  const params = JSON.parse(formatAleoString(params_str));
+  delete voting_system.dao_id;
+  return {
+    ...voting_system,
+    program_id,
+    params,
+    params_str
+  };*/
+  return { score_value_0, score_value_1 };
+}
+
 export const getDaoVotingSystems = async (daoId) => {
   const voting_system_mapping_values = await listProgramMappingValues(
     process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
@@ -134,7 +166,7 @@ export const getDaoVotingSystems = async (daoId) => {
     );
 
   const loaded_voting_systems = await Promise.all(
-    voting_systems.map(loadVotingSystem)
+    voting_systems.map(getVotingSystem)
   )
   return loaded_voting_systems;
 }
@@ -189,13 +221,15 @@ export const getAllProposals = async (daoId) => {
         async (proposal) => {
           const vs_params_hash = proposal.vs_params_hash;
           delete proposal.vs_params_hash;
+          const voting_system = await getVotingSystem({
+            address: proposal.voting_system,
+            params_hash: vs_params_hash,
+          });
+          proposal.voting_system = voting_system;
+          const scores = await getProposalScores(proposal);
           return {
             ...await loadProposalContent(proposal),
-            voting_system: await loadVotingSystem({
-              address: proposal.voting_system,
-              params_hash: vs_params_hash,
-            }
-            )
+            scores
           }
         }
       )

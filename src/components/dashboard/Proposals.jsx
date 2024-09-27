@@ -1,6 +1,21 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
+import {
+    Container,
+    Typography,
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+    Switch,
+    TextField,
+    Button,
+    Grow,
+    Box,
+    InputAdornment,
+} from '@mui/material'; import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const proposalTypesLabels = {
     "vsu": "Voting Systems Update",
@@ -9,21 +24,55 @@ const proposalTypesLabels = {
     "default": "Default"
 };
 
-const TableRow = ({ proposal }) => {
+const TableRow = ({ proposal, index }) => {
     return (
+
         <tr className="mt-5">
-            <td className="text-[18px] pt-3 ">Create Gouv...</td>
+            <style global jsx>{`
+                .MuiInputBase-input{
+                    padding: 5px!important;
+                    padding-right: 25px!important;
+                }
+            `}</style>
+            <td className="text-[18px] pt-3 ">{proposal.proposal_id.slice(0, 10)}...</td>
             <td className="text-[18px] pt-3 ">{proposalTypesLabels?.[proposal.type]}</td>
-            <td className="text-[18px] pt-3 text-[#959595]">04/09/25</td>
-            <td className="pt-3">
-                <div className="flex flex-start">
-                    <div className="leading-normal text-[#8A8A8A] text-[12px] font-bold border border-[#ADADAD] rounded-full px-3 py-0.5 bg-[#ECECEC]">
-                        Accepted
+            <td className="text-[18px] pt-3 ">
+                <div className="flex items-center text-[16px] font-bold text-[#0C0B3F] vs_params_container">
+                    <TextField
+                        label="Parameters "
+                        variant="outlined"
+                        value={proposal.content.value_str}
+                        fullWidth
+                        margin="normal"
+                        id={"proposalContent_" + index}
+                        disabled={true}
+                    />
+                    <div className="link-copy copyInput" style={{ transform: "translate(-20px, 5px)" }}>
+                        <button
+                            onClick={
+                                (e) => {
+                                    const tempInput = document.createElement("input");
+                                    tempInput.value = document.getElementById("proposalContent_" + index).value;
+                                    document.body.appendChild(tempInput);
+                                    tempInput.select();
+                                    document.execCommand("copy");
+                                    document.body.removeChild(tempInput);
+                                    console.log("Copied: " + tempInput.value);
+                                }
+                            }
+                        ><i className="fas fa-copy"></i></button>
                     </div>
                 </div>
             </td>
-            <td className="text-[18px] pt-3 ">10/250</td>
-        </tr>
+            <td className="text-[18px] pt-3 ">0/{proposal.voting_system.params.quorum.slice(0, -4)}</td>
+            <td className="pt-3">
+                <div className="flex flex-start">
+                    <div className="leading-normal text-[#8A8A8A] text-[12px] font-bold border border-[#ADADAD] rounded-full px-3 py-0.5 bg-[#ECECEC]">
+                        Active
+                    </div>
+                </div>
+            </td>
+        </tr >
     );
 };
 
@@ -53,10 +102,12 @@ const proposalToProposalData = (proposals) => {
     );
 }
 
-export function ProposalsPage({ dao }) {
+export function ProposalsPage({ dao, setStatusFilter, statusFilter }) {
     const [activeTab, setActiveTab] = useState("all");
 
-    const proposals = proposalToProposalData(dao.proposals);
+    const proposals = proposalToProposalData(dao.proposals).filter(
+        proposal => (activeTab === "all" || proposal.type === activeTab)
+    );
     return (
         <>
             <div className="grid grid-cols-4 gap-[32px] mt-[18px] text-[#0C0B3F]">
@@ -88,15 +139,16 @@ export function ProposalsPage({ dao }) {
                         <table className="w-full">
                             <thead className="border-b">
                                 <tr className="text-[18px] font-medium text-[#5F5F5F]">
-                                    <th className="pb-4">Name</th>
+                                    <th className="pb-4">ID</th>
                                     <th className="pb-4">Type</th>
-                                    <th className="pb-4">Created At</th>
+                                    <th className="pb-4">Content</th>
+                                    <th className="pb-4">Votes: For/Needed</th>
                                     <th className="pb-4">Status</th>
-                                    <th className="pb-4">For Votes/Quorum</th>
                                 </tr>
                             </thead>
                             <tbody className="mt-5">
-                                {proposals.map((proposal) => (<TableRow proposal={proposal} />))}
+                                {proposals.map((proposal, index) => (<TableRow proposal={proposal} index={index} />))}
+                                {!proposals?.length && (<div style={{ color: "grey", marginTop: "20px" }}>No proposals yet...</div>)}
                             </tbody>
                         </table>
                         <div className="flex justify-center gap-4 text-[18px]">
@@ -151,12 +203,22 @@ export function ProposalsFilters() {
                     </button>
                 </div>
                 <div className="">
-                    <button type="button">
-                        <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
+                    {false && (
+                        <button type="button" onClick={() => {
+                        }}>
+                            <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
+                                <span className="text-[36px]">+</span>
+                                Add Voting System
+                            </div>
+                        </button>
+                    )}
+                    {!false && (
+                        <div className="cursor-default text-[#858585] text-[12px] font-extrabold flex items-center gap-2 !bg-[#E5E6ED] rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                             <span className="text-[36px]">+</span>
                             New proposal
                         </div>
-                    </button>
+                    )}
+
                 </div>
             </div>
         </>

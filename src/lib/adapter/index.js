@@ -65,10 +65,12 @@ export const createDao = async (
     feeReferenceParamsTransaction,
     false
   );
-  const referencedAlready = null !== await getMappingValue(
+  const retrieved = await getMappingValue(
     voting_system_program_id, "voting_system_params", initial_vs_params_hash
-  );
-  if (referencedAlready) {
+  )
+
+  const referencedAlready = null != retrieved;
+  if (!referencedAlready) {
     transactions.push(referenceParamsTransaction);
   }
 

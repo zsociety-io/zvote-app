@@ -126,7 +126,7 @@ export const addVotingSystem = async (
       false
     );
     const notReferencedYet = (
-      null === await getMappingValue(
+      null == await getMappingValue(
         voting_system_program_id,
         "voting_system_params",
         vs_params_hash
@@ -195,7 +195,7 @@ export const createVotingSystemProposal = async (
       false
     );
     const notReferencedYet = (
-      null === await getMappingValue(
+      null == await getMappingValue(
         voting_system_program_id,
         "voting_system_params",
         proposed_vs_params_hash
@@ -256,6 +256,115 @@ export const updateDaoManager = async (
   );
 }
 
+
+export const applyDaoUpdateProposal = async (
+  dao,
+  publicKey,
+  requestTransaction,
+  daoId,
+  newDaoManager,
+  daoManagerUpdater,
+  votingSystemManager,
+  proposersManager,
+) => {
+  const formerDaoManager = dao?.dao_manager?.program_id;
+  const programId = process.env.NEXT_PUBLIC_H_UPDATE_DAOM_PROGRAM_ID;
+
+  const from = (
+    formerDaoManager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID
+  ) ? "ap" : "na";
+  const to = (
+    newDaoManager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID
+  ) ? "ap" : "na";
+  const functionName = `dao_based_update_${from}_to_${to}`;
+  const fee = 1_000_000;
+
+  const proposalId = random_from_type("field");
+
+  const parsedInputs = [
+    daoId,
+    proposalId,
+    daoManagerUpdater,
+    votingSystemManager
+  ];
+  if (proposersManager != null) {
+    parsedInputs.push(proposersManager)
+  }
+
+  const createTransaction = Transaction.createTransaction(
+    publicKey,
+    WalletAdapterNetwork.TestnetBeta,
+    programId,
+    functionName,
+    parsedInputs,
+    fee,
+    false
+  );
+
+  await requestTransaction(
+    createTransaction,
+  );
+}
+
+
+
+export const createDaoUpdateProposal = async (
+  dao,
+  publicKey,
+  requestTransaction,
+  daoId,
+  daoManager,
+  daoManagerUpdater,
+  votingSystemManager,
+  proposersManager,
+  votingSystemAddress,
+  votingSystemParamsHash,
+) => {
+  const formerDaoManager = dao?.dao_manager?.program_id;
+  const programId = process.env.NEXT_PUBLIC_H_UPDATE_DAOM_PROGRAM_ID;
+
+  const from = (
+    formerDaoManager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID
+  ) ? "ap" : "na";
+  const to = (
+    daoManager === process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID
+  ) ? "ap" : "na";
+
+  const functionName = `propose_update_${from}_to_${to}`;
+  const fee = 1_000_000;
+
+  const proposalId = random_from_type("field");
+  let parsedInputs = [
+    daoId,
+    proposalId,
+    daoManagerUpdater,
+    votingSystemManager
+  ];
+  console.log({ proposersManager })
+  if (proposersManager != null) {
+    parsedInputs.push(proposersManager)
+  }
+  parsedInputs = parsedInputs.concat([
+    votingSystemAddress,
+    votingSystemParamsHash
+  ]);
+
+  console.log({ parsedInputs });
+
+  const createTransaction = Transaction.createTransaction(
+    publicKey,
+    WalletAdapterNetwork.TestnetBeta,
+    programId,
+    functionName,
+    parsedInputs,
+    fee,
+    false
+  );
+
+  await requestTransaction(
+    createTransaction,
+  );
+}
 
 // addApprovedProposer
 // daom__approved_proposers_003.aleo/add_approved_proposer

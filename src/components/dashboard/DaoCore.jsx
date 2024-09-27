@@ -28,7 +28,7 @@ import {
     Box,
     InputAdornment,
 } from '@mui/material'; import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { updateDaoManager } from "@/lib/adapter/dashboard"
+import { updateDaoManager, createDaoUpdateProposal } from "@/lib/adapter/dashboard"
 
 const theme = createTheme({
     palette: {
@@ -145,7 +145,7 @@ const ProposerModal = ({ isVote, votingSystems, voteVS, setVoteVS, removedPropos
 };
 
 
-const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit, }) => {
+const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit }) => {
     const modalRef = useRef(null);
 
     useEffect(() => {
@@ -178,7 +178,7 @@ const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit,
                             />
                         </FormControl>
                         <Button onClick={onSubmit} style={{ padding: "4px", borderRadius: "50px", background: "#0a093d", color: "#ffffff", fontSize: "14px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            Update
+                            Propose To Update
                         </Button>
                     </Container>
                 </ThemeProvider>
@@ -538,14 +538,21 @@ export function DaoCorePage({ dao }) {
                     updateDaoParamsRef.current.proposers_manager,
                 );
             } else {
+                const votingSystem = dao?.voting_systems?.[voteVS || 0];
+                const votingSystemAddress = votingSystem?.address;
+                const votingSystemParamsHash = votingSystem?.params_hash;
+
                 await createDaoUpdateProposal(
+                    dao,
                     publicKey,
-                    requestBulkTransactions,
-                    votingSystemManager,
-                    dao?.dao_id,
+                    requestTransaction,
+                    dao.dao_id,
+                    updateDaoParamsRef.current.dao_manager,
+                    updateDaoParamsRef.current.dao_manager_updater,
+                    updateDaoParamsRef.current.voting_system_manager,
+                    updateDaoParamsRef.current.proposers_manager,
                     votingSystemAddress,
-                    votingSystemParamsHash,
-                    inputVSParams
+                    votingSystemParamsHash
                 );
             }
         } catch (e) {
