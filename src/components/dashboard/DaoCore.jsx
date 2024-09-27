@@ -574,7 +574,13 @@ export function DaoCorePage({ dao }) {
         setIsDaoModalOpen(false);
     };
 
-
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+    if (!isMounted) {
+        return null; // Avoid rendering on the server
+    }
     return (
         <>
             <style global jsx>{`
