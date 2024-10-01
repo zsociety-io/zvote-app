@@ -612,8 +612,7 @@ export const applyDaoUpdateProposal = async (
   proposal,
   updateDaoParamsRef
 ) => {
-  const dao = await getDao(proposal.dao_id);
-  const formerDaoManager = dao?.dao_manager?.program_id;
+  const formerDaoManager = await addressToProgramId(proposal.dao?.dao_manager);
   const newDaoManager = updateDaoParamsRef.current.dao_manager;
 
   const programId = process.env.NEXT_PUBLIC_H_UPDATE_DAOM_PROGRAM_ID;
@@ -627,17 +626,22 @@ export const applyDaoUpdateProposal = async (
   const functionName = `dao_based_update_${from}_to_${to}`;
   const fee = 1_000_000;
 
-  const parsedInputs = [
+  let parsedInputs = [
     proposal.dao_id,
     proposal.proposal_id,
-    proposal.content.value.token_id,
-    updateDaoParamsRef.current.dao_manager_updater,
-    updateDaoParamsRef.current.voting_system_manager
-  ];
+  ]
+  if (functionName === "dao_based_update_ap_to_na" && process.env.NEXT_PUBLIC_DAOM_APL_PROGRAM_ID === "daom__approved_proposers_015.aleo") {
+    parsedInputs.push("0field")
+  } // TODO Remove in Prod
+  parsedInputs = parsedInputs.concat([proposal.content.value.token_id,
+  updateDaoParamsRef.current.dao_manager_updater,
+  updateDaoParamsRef.current.voting_system_manager
+  ]);
   if (updateDaoParamsRef.current.proposers_manager != null) {
     parsedInputs.push(updateDaoParamsRef.current.proposers_manager)
   }
 
+  console.log({ parsedInputs, functionName })
   const createTransaction = Transaction.createTransaction(
     publicKey,
     WalletAdapterNetwork.TestnetBeta,
