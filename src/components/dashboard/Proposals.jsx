@@ -1,21 +1,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation'
 
-import {
-    Container,
-    Typography,
-    FormControl,
-    FormLabel,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
-    Switch,
-    TextField,
-    Button,
-    Grow,
-    Box,
-    InputAdornment,
-} from '@mui/material'; import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+import { TextField } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const proposalTypesLabels = {
     "vsu": "Voting Systems Update",
@@ -24,22 +13,29 @@ const proposalTypesLabels = {
     "default": "Default"
 };
 
-const TableRow = ({ proposal, index }) => {
-    return (
+const proposalStatusLabels = {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "rejected": "Rejected"
+};
 
-        <tr className="mt-5">
+const TableRow = ({ proposal, index }) => {
+    const router = useRouter();
+
+    return (
+        <tr className="mt-5 cursor-pointer hover:bg-[#fafafa] transition-all" onClick={() => router.push(`/dashboard/dao/${proposal.dao_id}/proposal/${proposal.proposal_id}`)}>
             <style global jsx>{`
                 .MuiInputBase-input{
                     padding: 5px!important;
                     padding-right: 25px!important;
                 }
             `}</style>
-            <td className="text-[18px] pt-3 ">{proposal.proposal_id.slice(0, 10)}...</td>
-            <td className="text-[18px] pt-3 ">{proposalTypesLabels?.[proposal.type]}</td>
-            <td className="text-[18px] pt-3 ">
+            <td className="text-[18px] py-3 ">{proposal.proposal_id.slice(0, 10)}...</td>
+            <td className="text-[18px] py-3 ">{proposalTypesLabels?.[proposal.type]}</td>
+            <td className="text-[18px] py-3 ">
                 <div className="flex items-center text-[16px] font-bold text-[#0C0B3F] vs_params_container">
                     <TextField
-                        label="Parameters "
+                        className="mt-[8px]"
                         variant="outlined"
                         value={proposal.content.value_str}
                         fullWidth
@@ -47,10 +43,12 @@ const TableRow = ({ proposal, index }) => {
                         id={"proposalContent_" + index}
                         disabled={true}
                     />
-                    <div className="link-copy copyInput" style={{ transform: "translate(-20px, 5px)" }}>
+                    <div className="link-copy copyInput" style={{ transform: "translate(-20px, 0px)" }}>
                         <button
                             onClick={
                                 (e) => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
                                     const tempInput = document.createElement("input");
                                     tempInput.value = document.getElementById("proposalContent_" + index).value;
                                     document.body.appendChild(tempInput);
@@ -64,11 +62,19 @@ const TableRow = ({ proposal, index }) => {
                     </div>
                 </div>
             </td>
-            <td className="text-[18px] pt-3 ">0/{proposal.voting_system.params.quorum.slice(0, -4)}</td>
-            <td className="pt-3">
+            <td className="text-[18px] py-3 text-center">&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            <td className="py-3">
                 <div className="flex flex-start">
-                    <div className="leading-normal text-[#8A8A8A] text-[12px] font-bold border border-[#ADADAD] rounded-full px-3 py-0.5 bg-[#ECECEC]">
-                        Active
+                    <div
+                        className={"w-[100px] text-center leading-normal text-[12px] font-bold border rounded-full px-3 py-0.5 "
+                            + `
+                                ${proposal.status === "pending" && "bg-[#F5F5F5] !border-[#D1D1D1] text-[#7D7D7D]"}
+                                ${proposal.status === "accepted" && "bg-[#E6F4EA] !border-[#A4D4AE] text-[#4A8E59]"}
+                                ${proposal.status === "rejected" && "bg-[#FDE8E8] !border-[#F5A6A6] text-[#D95757]"}
+                            `
+                        }
+                    >
+                        {proposalStatusLabels?.[proposal.status]}
                     </div>
                 </div>
             </td>
@@ -76,44 +82,23 @@ const TableRow = ({ proposal, index }) => {
     );
 };
 
-const proposalToProposalData = (proposals) => {
-    return proposals.map(
-        (proposal) => {
-            const pid = proposal.content.program_id;
-            const type = (
-                pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
-                || pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
-            ) ?
-                "vsu" :
-                (
-                    pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID
-                    || pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID
-                ) ?
-                    "daou" :
-                    pid === process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID ?
-                        "psu"
-                        :
-                        "default";
-            return {
-                ...proposal,
-                type,
-            };
-        }
-    );
-}
 
 export function ProposalsPage({ dao, setStatusFilter, statusFilter }) {
     const [activeTab, setActiveTab] = useState("all");
 
-    const proposals = proposalToProposalData(dao.proposals).filter(
-        proposal => (activeTab === "all" || proposal.type === activeTab)
-    );
+    const proposals = dao.proposals
+        .filter(
+            proposal => (activeTab === "all" || proposal.type === activeTab)
+        )
+        .filter(
+            (proposal) => (statusFilter === "all" || proposal.status === statusFilter)
+        )
+        ;
     return (
         <>
             <div className="grid grid-cols-4 gap-[32px] mt-[18px] text-[#0C0B3F]">
                 <div className="col-span-1">
                     <div className="py-[25px] px-[35px] bg-white rounded-[15px] border border-[#D5D5D5]">
-
                         <ul className="flex flex-col gap-4 mt-2 mb-3 text-[18px] font-medium">
                             <li>
                                 <Link href="#" className={activeTab === "all" ? "font-black" : ""} onClick={() => setActiveTab("all")}>All Proposals</Link>
@@ -142,12 +127,19 @@ export function ProposalsPage({ dao, setStatusFilter, statusFilter }) {
                                     <th className="pb-4">ID</th>
                                     <th className="pb-4">Type</th>
                                     <th className="pb-4">Content</th>
-                                    <th className="pb-4">Votes: For/Needed</th>
+                                    <th className="pb-4">&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th className="pb-4">Status</th>
                                 </tr>
                             </thead>
                             <tbody className="mt-5">
-                                {proposals.map((proposal, index) => (<TableRow proposal={proposal} index={index} />))}
+                                {
+                                    proposals
+                                        .map(
+                                            (proposal, index) => (
+                                                <TableRow proposal={proposal} index={index} />
+                                            )
+                                        )
+                                }
                                 {!proposals?.length && (<div style={{ color: "grey", marginTop: "20px" }}>No proposals yet...</div>)}
                             </tbody>
                         </table>
@@ -163,43 +155,42 @@ export function ProposalsPage({ dao, setStatusFilter, statusFilter }) {
 
 
 
-export function ProposalsFilters() {
-    const [activeFilter, setActiveFilter] = useState("All");
+export function ProposalsFilters({ statusFilter, setStatusFilter }) {
     return (
         <>
             <div className="flex gap-11 items-center">
                 <div className="bg-[#E5E6ED] p-[4px] rounded-[10px]">
                     <button
-                        onClick={() => setActiveFilter("All")}
+                        onClick={() => setStatusFilter("all")}
                         type="button"
-                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "All" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${statusFilter === "all" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
                         All
                     </button>
                     <button
-                        onClick={() => setActiveFilter("Active")}
+                        onClick={() => setStatusFilter("pending")}
                         type="button"
-                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Active" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${statusFilter === "pending" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
-                        Active
+                        {proposalStatusLabels["pending"]}
                     </button>
                     <button
-                        onClick={() => setActiveFilter("Past")}
+                        onClick={() => setStatusFilter("accepted")}
                         type="button"
-                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Past" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${statusFilter === "accepted" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
-                        Past
+                        {proposalStatusLabels["accepted"]}
                     </button>
                     <button
-                        onClick={() => setActiveFilter("Accepted")}
+                        onClick={() => setStatusFilter("rejected")}
                         type="button"
-                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${activeFilter === "Accepted" ? `bg-white` : `text-[#5F5F5F]`
+                        className={`px-[28px] py-1 text-[14px] font-medium rounded-[10px] ${statusFilter === "rejected" ? `bg-white` : `text-[#5F5F5F]`
                             }`}
                     >
-                        Accepted
+                        {proposalStatusLabels["rejected"]}
                     </button>
                 </div>
                 <div className="">
@@ -218,7 +209,6 @@ export function ProposalsFilters() {
                             New proposal
                         </div>
                     )}
-
                 </div>
             </div>
         </>

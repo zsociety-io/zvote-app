@@ -174,7 +174,6 @@ export async function dynamodb_create_table(tablename, key_name, key_type) {
   };
   await dynamoDB.createTable(params).promise();
 
-  const sleepDuration = 1000;
   let table = null;
   do {
     table = await dynamodb_describe_table(tablename);

@@ -37,7 +37,6 @@ export const getMappingValue = async (
     const url = (
       `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/mapping/get_value/`
       + `${programId}/${mappingId}/${key}`
-
     );
     return await (await fetch(url)).json();
   } catch (e) {
@@ -53,6 +52,18 @@ export const addressToProgramId = async (
     const url = (
       `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/address/program_id/`
       + `${address}`
+
+    );
+    return await (await fetch(url)).json();
+  } catch (e) {
+    return null;
+  }
+}
+
+export const getStatus = async () => {
+  try {
+    const url = (
+      `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/status`
 
     );
     return await (await fetch(url)).json();

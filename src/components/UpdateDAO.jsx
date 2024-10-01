@@ -48,7 +48,8 @@ const UpdateDAO = ({
     setIsUpdateLoading,
     refIsUpdateLoading,
     setIsUpdateEdited,
-    updateDaoParamsRef
+    updateDaoParamsRef,
+    disableUpdates
 }) => {
     defaultSettings = defaultSettings || undefined;
     const { requestTransaction, publicKey } = useWallet();
@@ -62,7 +63,6 @@ const UpdateDAO = ({
     const [vsAdmin, setVsAdmin] = useState(null);
 
     const [replacedDefaultForm, setReplacedDefaultForm, refReplacedDefaultForm] = useState(false);
-
 
     useEffect(
         () => {
@@ -114,7 +114,8 @@ const UpdateDAO = ({
                     dao_manager,
                     dao_manager_updater,
                     voting_system_manager,
-                    proposers_manager
+                    proposers_manager,
+                    token_id: governanceTokenID
                 };
             }
             setUpdateDaoRef();
@@ -125,7 +126,7 @@ const UpdateDAO = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (refIsUpdateLoading.current) {
+        if (refIsUpdateLoading?.current) {
             return;
         }
         setIsUpdateLoading(true);
@@ -139,7 +140,7 @@ const UpdateDAO = ({
     };
 
     useEffect(() => {
-        if (defaultSettings && !refReplacedDefaultForm.current) {
+        if (defaultSettings && (disableUpdates || !refReplacedDefaultForm?.current)) {
             setCanVSUpdateList(defaultSettings.canVSUpdateList || 'noone');
             setCreatorType(defaultSettings.creatorType || 'anyone');
             setCanUpdateDao(defaultSettings.canUpdateDao || 'noone');
@@ -154,7 +155,7 @@ const UpdateDAO = ({
 
     useEffect(() => {
         const formEdited = (
-            refReplacedDefaultForm.current && (
+            refReplacedDefaultForm?.current && (
                 defaultSettings?.canVSUpdateList !== canVSUpdateList ||
                 defaultSettings?.creatorType !== creatorType ||
                 defaultSettings?.canUpdateDao !== canUpdateDao ||
@@ -165,7 +166,9 @@ const UpdateDAO = ({
                 defaultSettings?.vsAdmin !== vsAdmin
             )
         );
-        setIsUpdateEdited(formEdited);
+        if (!disableUpdates) {
+            setIsUpdateEdited(formEdited);
+        }
     }, [
         canVSUpdateList,
         creatorType,
@@ -178,21 +181,10 @@ const UpdateDAO = ({
         defaultSettings,
         setIsUpdateEdited
     ]);
-
-
-    useEffect(
-        () => {
-            document
-                .querySelectorAll(".MuiInputBase-input")
-                .forEach((z) => z.style = "padding: 15px!important;")
-        }, []
+    const canUpdateDaoSettings = !disableUpdates && publicKey != null && (
+        (defaultSettings?.daoAdmin === publicKey)
+        || (defaultSettings?.canUpdateDao === "vote")
     );
-
-    const canUpdateDaoSettings = (
-        defaultSettings?.daoAdmin === publicKey
-        || defaultSettings?.canUpdateDao === "vote"
-    );
-
     return (
         <ThemeProvider theme={theme}>
             <style global jsx>{`
@@ -309,7 +301,7 @@ const UpdateDAO = ({
                         <FormControl fullWidth margin="normal">
                             <FormLabel>4. DAO Token ID</FormLabel>
                             <TextField
-                                label="1...12field"
+                                label={disableUpdates ? "" : "1...12field"}
                                 variant="outlined"
                                 value={governanceTokenID}
                                 onChange={(e) => setGovernanceTokenID(e.target.value)}

@@ -12,6 +12,9 @@ import swal from 'sweetalert';
 
 import useState from 'react-usestateref'
 
+import { useRouter } from 'next/router';
+import { formatNumber } from "@/lib/utils/strings"
+
 
 const existingWallets = {
     leoWallet: {
@@ -84,6 +87,9 @@ function ConnectBtn(props) {
     const [walletCookie, setWalletCookie, removeWalletCookie] = useCookie('wallet', '');
     const [sessionIdCookie, setSessionIdCookie, removeSessionIdCookie] = useCookie('session_id', '');
 
+    const router = useRouter();
+    const isDashboard = router.pathname.startsWith("/dashboard");
+
     const [installedWallets, otherWallets] = useMemo(() => {
         const installed = [];
         const notDetected = [];
@@ -102,7 +108,9 @@ function ConnectBtn(props) {
         return [installed, [...loadable, ...notDetected]];
     }, [wallets]);
 
-    const { connected: accountConnected, loading: accountLoading, setConnected } = useAccount();
+    const { connected: accountConnected, loading: accountLoading, setConnected, mainTokenPublicBalance, mainTokenData, mainTokenPrivateBalance } = useAccount();
+
+    const decimals = Number(mainTokenData?.decimals.slice(0, -2));
 
     const connectSemiDapp = async () => {
         try {
@@ -191,24 +199,55 @@ function ConnectBtn(props) {
     }
     return (
         customBtn ? (<a href="#" className={props.customClass} onClick={handleClickConnect}>{props.contentText}</a>) :
-            (<div className="menu-button">
-                <Link className={props.className || "theme-btn nav-link "} href="/profile" id="connectBtn" onClick={handleClickConnect} >
-                    <>
-                        <span className="aligned_connect">{!accountConnected ? (props.textContent || "Connect") : ("aleo..." + publicKey.slice(-3, publicKey.length))}</span>
-                        {
-                            (loading || accountLoading) && (
-                                <Image src={require("../../img/loader-loading.gif").default} alt="wallet" id="wallet_img" height={25} />
-                            )
-                        }
-                        {
-                            !(loading || accountLoading) && (
-                                <Image src={require("../../img/wallet.svg").default} alt="wallet" id="wallet_img" height={25} />
-                            )
-                        }
-                    </>
-                </Link>
-            </div>)
+            (
+                <>
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "row"
+                        }}
+                    >
+                        {isDashboard && accountConnected && (
+                            <div
+                                style={{
+                                    alignItems: "center",
+                                    display: "flex",
+                                    paddingRight: "15px",
+                                    fontSize: "16px"
+                                }}
+                            >
+                                DAO Token:&nbsp;<span className="font-bold">{mainTokenData?.symbol}</span> &nbsp;
+                                Public:&nbsp;
+                                <span className="font-bold">
+                                    {formatNumber((mainTokenPublicBalance || 0) / (10 ** decimals))}
+                                </span>
+                                &nbsp;
+                                Private:&nbsp;<span className="font-bold">
+                                    {formatNumber((mainTokenPrivateBalance || 0) / (10 ** decimals))}
+                                </span>
+                            </div>
+                        )}
+                        <div className="menu-button">
+                            <Link className={props.className || "theme-btn nav-link "} href="/profile" id="connectBtn" onClick={handleClickConnect} >
+                                <>
+                                    <span className="aligned_connect">{!accountConnected ? (props.textContent || "Connect") : ("aleo..." + publicKey.slice(-3, publicKey.length))}</span>
+                                    {
+                                        (loading || accountLoading) && (
+                                            <Image src={require("../../img/loader-loading.gif").default} alt="wallet" id="wallet_img" height={25} />
+                                        )
+                                    }
+                                    {
+                                        !(loading || accountLoading) && (
+                                            <Image src={require("../../img/wallet.svg").default} alt="wallet" id="wallet_img" height={25} />
+                                        )
+                                    }
+                                </>
+                            </Link>
+                        </div>
+                    </div>
+                </>)
     );
 }
 
 export default ConnectBtn;
+

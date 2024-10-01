@@ -15,19 +15,12 @@ import {
 
 import {
     Container,
-    Typography,
     FormControl,
     FormLabel,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
-    Switch,
     TextField,
     Button,
-    Grow,
-    Box,
-    InputAdornment,
-} from '@mui/material'; import { ThemeProvider, createTheme } from '@mui/material/styles';
+} from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { updateDaoManager, createDaoUpdateProposal } from "@/lib/adapter/dashboard"
 
 const theme = createTheme({
@@ -46,7 +39,9 @@ const theme = createTheme({
 const VotingSystemSelection = ({
     votingSystems,
     voteVS,
-    setVoteVS
+    setVoteVS,
+    setProposalBlocks,
+    proposalBlocks
 }) => {
     return (<>
         <hr
@@ -78,11 +73,36 @@ const VotingSystemSelection = ({
                 )
             )}
         </TextField>
+        <FormLabel>Duration in blocks (1 block ~ 2.5s)</FormLabel>
+        <TextField
+            label="ie: 1500 for an hour"
+            variant="outlined"
+            value={proposalBlocks}
+            onChange={(e) => setProposalBlocks(e.target.value)}
+            fullWidth
+            margin="normal"
+            name="address"
+            type="number"
+            required
+        />
     </>)
 }
 
 
-const ProposerModal = ({ isVote, votingSystems, voteVS, setVoteVS, removedProposer, inputProposer, setInputProposer, isOpen, onClose, onSubmit, }) => {
+const ProposerModal = ({
+    isVote,
+    votingSystems,
+    voteVS,
+    setVoteVS,
+    removedProposer,
+    inputProposer,
+    setInputProposer,
+    isOpen,
+    onClose,
+    onSubmit,
+    setProposalBlocks,
+    proposalBlocks
+}) => {
     const modalRef = useRef(null);  // Reference to the modal content
 
     useEffect(() => {
@@ -130,6 +150,8 @@ const ProposerModal = ({ isVote, votingSystems, voteVS, setVoteVS, removedPropos
                                         votingSystems={votingSystems}
                                         voteVS={voteVS}
                                         setVoteVS={setVoteVS}
+                                        setProposalBlocks={setProposalBlocks}
+                                        proposalBlocks={proposalBlocks}
                                     />
                                 )
                             }
@@ -145,7 +167,16 @@ const ProposerModal = ({ isVote, votingSystems, voteVS, setVoteVS, removedPropos
 };
 
 
-const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit }) => {
+const DaoModal = ({
+    votingSystems,
+    voteVS,
+    setVoteVS,
+    isOpen,
+    onClose,
+    onSubmit,
+    setProposalBlocks,
+    proposalBlocks
+}) => {
     const modalRef = useRef(null);
 
     useEffect(() => {
@@ -175,6 +206,8 @@ const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit 
                                 votingSystems={votingSystems}
                                 voteVS={voteVS}
                                 setVoteVS={setVoteVS}
+                                setProposalBlocks={setProposalBlocks}
+                                proposalBlocks={proposalBlocks}
                             />
                         </FormControl>
                         <Button onClick={onSubmit} style={{ padding: "4px", borderRadius: "50px", background: "#0a093d", color: "#ffffff", fontSize: "14px" }} type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
@@ -190,7 +223,22 @@ const DaoModal = ({ votingSystems, voteVS, setVoteVS, isOpen, onClose, onSubmit 
 
 
 
-const VotingSystemModal = ({ isVote, removedVs, votingSystems, voteVS, setVoteVS, inputVS, setInputVS, inputVSParams, setInputVSParams, isOpen, onClose, onSubmit, }) => {
+const VotingSystemModal = ({
+    isVote,
+    removedVs,
+    votingSystems,
+    voteVS,
+    setVoteVS,
+    inputVS,
+    setInputVS,
+    inputVSParams,
+    setInputVSParams,
+    isOpen,
+    onClose,
+    onSubmit,
+    setProposalBlocks,
+    proposalBlocks
+}) => {
     const modalRef = useRef(null);  // Reference to the modal content
 
     useEffect(() => {
@@ -250,6 +298,8 @@ const VotingSystemModal = ({ isVote, removedVs, votingSystems, voteVS, setVoteVS
                                         votingSystems={votingSystems}
                                         voteVS={voteVS}
                                         setVoteVS={setVoteVS}
+                                        setProposalBlocks={setProposalBlocks}
+                                        proposalBlocks={proposalBlocks}
                                     />
                                 )
                             }
@@ -331,7 +381,6 @@ const TableItem = ({ name, index, userCanAddProposers, onTrashClicked, canTrash,
                 !canTrash && <a
                     target="_blank"
                     className="contents !hover:underline"
-                    onClick={onTrashClicked}
                 >
                     <Image width={20} src={require("@/img/trash-bin-grey.svg").default} alt="delete" />
                 </a>
@@ -340,8 +389,7 @@ const TableItem = ({ name, index, userCanAddProposers, onTrashClicked, canTrash,
     );
 };
 
-const settingsFromDao = (dao) => {
-    console.log(dao)
+export const settingsFromDao = (dao) => {
     const daom = dao?.dao_manager;
     const creatorType = (
         (daom?.program_id === process.env.NEXT_PUBLIC_DAOM_NAR_PROGRAM_ID) ?
@@ -378,16 +426,16 @@ const settingsFromDao = (dao) => {
                 'vote' :
                 'admin'
     );
-    const proposersAdmin = (proposersUpdater === "admin") ?
+    const proposersAdmin = ((proposersUpdater === "admin") ?
         daom?.proposers_manager?.address :
-        null
-    const vsAdmin = (canVSUpdateList === "admin") ?
+        null) || null
+    const vsAdmin = ((canVSUpdateList === "admin") ?
         daom?.voting_system_manager?.address :
-        null;
-    const daoAdmin = (canUpdateDao === "admin") ?
+        null) || null;
+    const daoAdmin = ((canUpdateDao === "admin") ?
         daom?.dao_manager_updater?.address :
-        null;
-    const governanceTokenID = dao?.token_id;
+        null) || null;
+    const governanceTokenID = dao?.token_id || null;
     return {
         creatorType,
         proposersUpdater,
@@ -412,6 +460,7 @@ export function DaoCorePage({ dao }) {
     const [inputProposer, setInputProposer] = useState("");
 
     const [voteVS, setVoteVS] = useState("");
+    const [proposalBlocks, setProposalBlocks] = useState("");
     const [removedVs, setRemovedVs] = useState(false);
     const [removedProposer, setRemovedProposer] = useState(false);
 
@@ -435,6 +484,7 @@ export function DaoCorePage({ dao }) {
         dao_manager_updater: null,
         voting_system_manager: null,
         proposers_manager: null,
+        token_id: null,
     });
 
     const addProposer = async (addOrRemove, proposer) => {
@@ -458,12 +508,13 @@ export function DaoCorePage({ dao }) {
 
                 await createApproveProposerProposal(
                     publicKey,
-                    requestTransaction,
+                    requestBulkTransactions,
                     dao?.dao_id,
                     addOrRemove ? inputProposer : proposer,
-                    votingSystemAddress,
+                    votingSystem,
                     votingSystemParamsHash,
-                    addOrRemove
+                    addOrRemove,
+                    proposalBlocks
                 );
             }
             await swal("Success", "Transaction broadcasted, check in your wallet to see progress.", "success");
@@ -509,10 +560,11 @@ export function DaoCorePage({ dao }) {
                     dao?.dao_id,
                     addOrRemove ? (await programIdToAddress(inputVS)) : vs,
                     addOrRemove ? (await hashStruct(inputVSParams)) : vsParams,
-                    votingSystemAddress,
+                    votingSystem,
                     votingSystemParamsHash,
                     addOrRemove,
-                    inputVSParams
+                    inputVSParams,
+                    proposalBlocks
                 );
             }
             await swal("Success", "Transaction broadcasted, check in your wallet to see progress.", "success");
@@ -532,6 +584,7 @@ export function DaoCorePage({ dao }) {
                     publicKey,
                     requestTransaction,
                     dao.dao_id,
+                    updateDaoParamsRef.current.token_id,
                     updateDaoParamsRef.current.dao_manager,
                     updateDaoParamsRef.current.dao_manager_updater,
                     updateDaoParamsRef.current.voting_system_manager,
@@ -545,14 +598,16 @@ export function DaoCorePage({ dao }) {
                 await createDaoUpdateProposal(
                     dao,
                     publicKey,
-                    requestTransaction,
+                    requestBulkTransactions,
                     dao.dao_id,
+                    updateDaoParamsRef.current.token_id,
                     updateDaoParamsRef.current.dao_manager,
                     updateDaoParamsRef.current.dao_manager_updater,
                     updateDaoParamsRef.current.voting_system_manager,
                     updateDaoParamsRef.current.proposers_manager,
-                    votingSystemAddress,
-                    votingSystemParamsHash
+                    votingSystem,
+                    votingSystemParamsHash,
+                    proposalBlocks
                 );
             }
         } catch (e) {
@@ -594,7 +649,10 @@ export function DaoCorePage({ dao }) {
                     padding-left: 20px!important;
                 }
                 .vs_params_container .MuiInputBase-root {
-                        height: 35px !important;
+                    height: 35px !important;
+                }
+                .MuiOutlinedInput-root{
+                    padding-right: 10px !important;
                 }
             `}</style>
             <div className="grid grid-cols-2 gap-[85px] mt-[22px]">
@@ -669,7 +727,7 @@ export function DaoCorePage({ dao }) {
                         )}
                     </div>
                     <div className="flex flex-col justify-between min-h-[444px]  bg-white mt-[18px] rounded-[15px] p-[35px] border border-[#D5D5D5]">
-                        <div className="flex flex-col gap-[37px]">
+                        <div className="flex flex-col gap-[10px]">
                             {
                                 dao.voting_systems.map(
                                     (voting_system, index) => {
@@ -732,7 +790,7 @@ export function DaoCorePage({ dao }) {
                             )}
                         </div>
                         <div className="flex flex-col justify-between min-h-[444px] bg-white mt-[18px] rounded-[15px] p-[35px] border border-[#D5D5D5]">
-                            <div className="flex flex-col gap-[37px]" style={{ alignItems: "center" }}>
+                            <div className="flex flex-col gap-[30px]" style={{ alignItems: "center" }}>
                                 {
                                     dao?.dao_manager?.proposers && dao?.dao_manager?.proposers.map(
                                         (proposer, index) => {
@@ -778,6 +836,8 @@ export function DaoCorePage({ dao }) {
                 votingSystems={dao.voting_systems}
                 voteVS={voteVS}
                 setVoteVS={setVoteVS}
+                setProposalBlocks={setProposalBlocks}
+                proposalBlocks={proposalBlocks}
                 removedVs={removedVs}
             />
             <ProposerModal
@@ -791,6 +851,8 @@ export function DaoCorePage({ dao }) {
                 votingSystems={dao.voting_systems}
                 voteVS={voteVS}
                 setVoteVS={setVoteVS}
+                setProposalBlocks={setProposalBlocks}
+                proposalBlocks={proposalBlocks}
                 removedProposer={removedProposer}
             />
             <DaoModal
@@ -801,6 +863,8 @@ export function DaoCorePage({ dao }) {
                 votingSystems={dao.voting_systems}
                 voteVS={voteVS}
                 setVoteVS={setVoteVS}
+                setProposalBlocks={setProposalBlocks}
+                proposalBlocks={proposalBlocks}
             />
         </>
     );

@@ -13,11 +13,18 @@ export const programs = [];
 
 // Context provider component
 export const AccountProvider = ({ children }) => {
-    const { wallets, select, connect, publicKey, disconnect, wallet, connecting } = useWallet();
+    const { wallets, select, connect, publicKey, disconnect, wallet, connecting, requestRecords } = useWallet();
     const [connected, setConnected] = useState(false);
     const [loading, setLoading] = useState(true);
     const [walletCookie, setWalletCookie, removeWalletCookie] = useCookie('wallet', '');
     const [sessionIdCookie, setSessionIdCookie, removeSessionIdCookie] = useCookie('session_id', '');
+
+    const [mainTokenId, setMainTokenId] = useState(null);
+    const [mainTokenPublicBalance, setMainTokenPublicBalance] = useState(null);
+
+    const [mainTokenPrivateBalance, setMainTokenPrivateBalance] = useState(null);
+    const [mainTokenData, setMainTokenData] = useState(null);
+    const [tokenRecord, setTokenRecord] = useState(null);
 
     const logOut = async () => {
         await get_request(`/api/session/destroy/${publicKey}`);
@@ -52,6 +59,19 @@ export const AccountProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        if (mainTokenId == null || !publicKey) return;
+        async function loadmainTokenPublicBalance() {
+            const resp = await get_request(`/api/contract/balance/${publicKey}/${mainTokenId}`);
+            const tokBal = resp?.balance?.balance || 0;
+            const tokData = resp?.token_data || null;
+
+            setMainTokenPublicBalance(tokBal);
+            setMainTokenData(tokData)
+        }
+        loadmainTokenPublicBalance();
+    }, [mainTokenId, publicKey]);
+
+    useEffect(() => {
         if (!walletCookie || !sessionIdCookie || !select) return;
         select(walletCookie);
     }, [select, walletCookie, sessionIdCookie, publicKey]);
@@ -61,6 +81,37 @@ export const AccountProvider = ({ children }) => {
             autoConnect();
         }
     }, [select, walletCookie, sessionIdCookie, publicKey, wallet]);
+
+
+    useEffect(() => {
+        const loadPrivateBalance = async () => {
+            if (connected && requestRecords != null) {
+                let recs = await requestRecords(process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID);
+                let newTokenRec = null;
+                let maxTokenRecVal = 0;
+                let newPrivateBalance = recs.reduce(
+                    (former, rec) => {
+                        if (rec.spent) {
+                            return former;
+                        }
+                        const isMainToken = (rec?.data?.token_id || '0field.private')?.split(".")[0] === mainTokenId;
+                        const tokenBalanceStr = (isMainToken ? rec?.data?.amount : null) || '0u128.private';
+                        const tokenBalance = Number(tokenBalanceStr.split(".")[0].slice(0, -4));
+                        if (tokenBalance > maxTokenRecVal) {
+                            newTokenRec = rec;
+                            maxTokenRecVal = tokenBalance;
+                        }
+                        return tokenBalance + former;
+                    }, 0
+                );
+                setTokenRecord(newTokenRec);
+                setMainTokenPrivateBalance(newPrivateBalance);
+            }
+        };
+        if (mainTokenId) {
+            loadPrivateBalance();
+        }
+    }, [connected, requestRecords, mainTokenId]);
 
     useMemo(() => {
         if (publicKey) {
@@ -73,7 +124,11 @@ export const AccountProvider = ({ children }) => {
     }, [walletCookie, sessionIdCookie, publicKey, connecting]);
 
     return (
-        <AccountContext.Provider value={{ connected, loading, setConnected, logOut }}>
+        <AccountContext.Provider value={{
+            connected, loading, setConnected, logOut,
+            mainTokenId, setMainTokenId, mainTokenPublicBalance,
+            mainTokenData, mainTokenPrivateBalance, tokenRecord
+        }}>
             {children}
         </AccountContext.Provider>
     );

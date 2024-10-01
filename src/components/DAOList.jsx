@@ -125,7 +125,7 @@ const DAOsList = () => {
         {daos.length > 0 ? (
           <DAOList>
             {daos.map((dao, index) => (
-              <Link href={`/dashboard/${dao.dao_id}`} key={index} style={{ display: "block" }}>
+              <Link href={`/dashboard/dao/${dao.dao_id}`} key={index} style={{ display: "block" }}>
                 <DAOItem>
                   <div>
                     <DAOName>{`${dao.token.token_data.name} (${dao.token.token_data.symbol})`}</DAOName>

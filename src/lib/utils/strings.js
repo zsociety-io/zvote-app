@@ -33,3 +33,5 @@ export function bigIntToString(bigIntValue) {
   return asciiString;
 }
 
+
+export const formatNumber = (x) => (x.toFixed(2).replace(/[.,]00$/, ""));

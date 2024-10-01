@@ -1,7 +1,6 @@
-import { listProgramMappingValues, getMappingValue, addressToProgramId } from "@/lib/aleo/aleoscan";
+import { listProgramMappingValues, getStatus, getMappingValue, addressToProgramId } from "@/lib/aleo/aleoscan";
 import { formatAleoString, getUserBalance, getTokenData, hashStruct } from "@/lib/aleo";
 import { programIdToAddress } from "@/lib/aleo";
-
 
 
 export const getAddressDaos = async (publicKey) => {
@@ -13,10 +12,11 @@ export const getAddressDaos = async (publicKey) => {
   );
   for (const dao of daos) {
     dao.token = ownedTokens?.[dao.token_id];
+    console.log(dao.token);
   }
   const owned_daos = daos.filter(
     dao => (
-      dao.token.balance != null && dao.token.balance > 0
+      dao.token.balance != null && dao.token.balance.balance > 0
       || dao?.dao_manager?.address === publicKey
       || dao?.dao_manager?.dao_manager_updater?.address === publicKey
       || dao?.dao_manager?.voting_system_manager?.address === publicKey
@@ -69,13 +69,6 @@ export const getDao = async (daoId) => {
     }
   }
   return dao;
-  /*
-  const ownedTokens = await getUserTokens(
-    publicKey,
-    [dao.token_id]
-  );
-  dao.token = ownedTokens?.[dao.token_id];
-  */
 }
 
 
@@ -111,12 +104,19 @@ const getVotingSystem = async (voting_system) => {
 }
 
 
-const getProposalScores = async (proposal) => {
-  const score_key_0 = hashStruct(`{dao_id: ${proposal?.dao_id}, proposal_id: ${proposal?.proposal_id}, candidate_id: ${"0field"}}`);
-  const score_key_1 = hashStruct(`{dao_id: ${proposal?.dao_id}, proposal_id: ${proposal?.proposal_id}, candidate_id: ${"0field"}}`);
-  console.log(proposal?.voting_system?.program_id)
-  console.log(proposal?.voting_system?.params)
-  const [score_value_0, score_value_1] = await Promise.all([
+
+export const getProposalVote = async (proposal) => {
+  const score_key_0 = hashStruct(`{
+    dao_id: ${proposal.dao_id},
+    proposal_id: ${proposal.proposal_id},
+    candidate: 0field
+  }`);
+  const score_key_1 = hashStruct(`{
+    dao_id: ${proposal.dao_id},
+    proposal_id: ${proposal.proposal_id},
+    candidate: 1field
+  }`)
+  const [score_0_str, score_1_str, params_str, status, result] = await Promise.all([
     getMappingValue(
       proposal?.voting_system?.program_id,
       "scores",
@@ -127,20 +127,43 @@ const getProposalScores = async (proposal) => {
       "scores",
       score_key_1
     ) || null,
+    getMappingValue(
+      proposal?.voting_system?.program_id,
+      "proposal_params",
+      proposal?.params_hash
+    ) || null,
+    getStatus(),
+    getMappingValue(
+      process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+      "results",
+      proposal.proposal_key_hash
+    ) || null,
   ]);
-  console.log({ score_value_0, score_value_1 })
-  /*
-  const params_str = cachedHashToParams?.[voting_system.params_hash];
+  const score_0 = score_0_str ? Number(score_0_str.slice(0, -4)) : 0;
+  const score_1 = score_1_str ? Number(score_1_str.slice(0, -4)) : 0;
+  const params = params_str ? JSON.parse(formatAleoString(params_str)) : null;
+  let executed = false;
+  if (result != null && proposal?.content?.program_id) {
+    try {
+      executed = await getMappingValue(
+        proposal.content.program_id,
+        "executed_already",
+        score_key_0
+      ) || false;
+    } catch (e) { }
+  }
 
-  const params = JSON.parse(formatAleoString(params_str));
-  delete voting_system.dao_id;
+  const end_block = params?.end_block ? Number(params?.end_block.slice(0, -3)) : 100000000000000;
+  const ended = end_block <= status.latest_block_height;
   return {
-    ...voting_system,
-    program_id,
-    params,
-    params_str
-  };*/
-  return { score_value_0, score_value_1 };
+    scores: { score_0, score_1 },
+    end: {
+      block: end_block,
+      ended
+    },
+    result,
+    executed
+  };
 }
 
 export const getDaoVotingSystems = async (daoId) => {
@@ -171,7 +194,7 @@ export const getDaoVotingSystems = async (daoId) => {
   return loaded_voting_systems;
 }
 
-const loadProposalContent = async (proposal) => {
+const getProposalContent = async (proposal) => {
   const contentProgramId = await addressToProgramId(proposal.content);
   if (contentProgramId == null) {
     return {
@@ -190,13 +213,27 @@ const loadProposalContent = async (proposal) => {
     value = JSON.parse(formatAleoString(value_str));
   } catch (e) { }
   return {
-    ...proposal,
-    content: {
-      program_id: contentProgramId,
-      address: proposal.content,
-      value_str,
-      value
-    }
+    program_id: contentProgramId,
+    address: proposal.content,
+    value_str,
+    value
+  }
+}
+
+const getProposalStatus = async (proposal) => {
+  const result = await getMappingValue(
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+    "results",
+    proposal.proposal_key_hash
+  ) || null;
+  if (result == null) {
+    return "pending";
+  }
+  if (result === "0field") {
+    return "rejected";
+  }
+  if (result === "1field") {
+    return "accepted";
   }
 }
 
@@ -217,25 +254,65 @@ export const getAllProposals = async (daoId) => {
       .filter(
         (proposal) => proposal.dao_id === daoId
       )
-      .map(
-        async (proposal) => {
-          const vs_params_hash = proposal.vs_params_hash;
-          delete proposal.vs_params_hash;
-          const voting_system = await getVotingSystem({
-            address: proposal.voting_system,
-            params_hash: vs_params_hash,
-          });
-          proposal.voting_system = voting_system;
-          const scores = await getProposalScores(proposal);
-          return {
-            ...await loadProposalContent(proposal),
-            scores
-          }
-        }
-      )
+      .map(loadProposal)
+  );
+  return proposals;
+}
+
+
+const loadProposal = async (proposal) => {
+  const vs_params_hash = proposal.vs_params_hash;
+  delete proposal.vs_params_hash;
+  const voting_system = await getVotingSystem({
+    address: proposal.voting_system,
+    params_hash: vs_params_hash,
+  });
+  proposal.voting_system = voting_system;
+  const [content, status] = await Promise.all([
+    getProposalContent(proposal),
+    getProposalStatus(proposal)
+  ]);
+  const pid = content.program_id;
+  const type = (
+    pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_NAR_PROGRAM_ID
+    || pid === process.env.NEXT_PUBLIC_VSM_DAO_BASED_APL_PROGRAM_ID
+  ) ?
+    "vsu" :
+    (
+      pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_AP_PROGRAM_ID
+      || pid === process.env.NEXT_PUBLIC_DAOMU_DAO_BASED_NA_PROGRAM_ID
+    ) ?
+      "daou" :
+      pid === process.env.NEXT_PUBLIC_PSM_DAO_BASED_PROGRAM_ID ?
+        "psu"
+        :
+        "default";
+  return {
+    ...proposal,
+    content,
+    type,
+    status,
+  }
+}
+
+
+export const getProposal = async (daoId, proposalId) => {
+  const proposal_key = `{dao_id: ${daoId}, proposal_id: ${proposalId}}`
+  const proposal_key_hash = hashStruct(proposal_key);
+  const proposal_mapping_value = await getMappingValue(
+    process.env.NEXT_PUBLIC_MDSP_PROGRAM_ID,
+    "proposals",
+    proposal_key_hash
   );
 
-  return proposals;
+  if (proposal_mapping_value == null) {
+    return null;
+  }
+  const proposal = {
+    proposal_key_hash,
+    ...JSON.parse(formatAleoString(proposal_mapping_value)),
+  };
+  return await loadProposal(proposal);
 }
 
 

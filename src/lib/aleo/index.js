@@ -32,40 +32,59 @@ export const hashStruct = (toHash) => {
 
 
 export const getUserBalance = async (token_id, publicKey) => {
-  const tokenOwner = `{account: ${publicKey}, token_id: ${token_id}}`;
-  return await getMappingValue(
-    process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
-    "authorized_balances",
-    hashStruct(tokenOwner),
-  );
+  try {
+    const tokenOwner = `{account: ${publicKey}, token_id: ${token_id}}`;
+    const tokenBalanceStr = await getMappingValue(
+      process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+      "authorized_balances",
+      hashStruct(tokenOwner),
+    );
+    if (tokenBalanceStr == null) {
+      return null;
+    }
+    const tokenBalance = JSON.parse(
+      formatAleoString(
+        tokenBalanceStr
+      )
+    );
+    tokenBalance.balance = parseInt(tokenBalance.balance.slice(0, -4))
+    tokenBalance.authorized_until = parseInt(tokenBalance.authorized_until.slice(0, -3))
+    return tokenBalance;
+  } catch {
+    return null;
+  }
 }
 
 export const getTokenData = async (token_id) => {
-  const mappingValue = await getMappingValue(
-    process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
-    "registered_tokens",
-    token_id,
-  );
-  if (mappingValue == null) {
-    return {
-      name: "?",
-      symbol: "?",
-    };
+  try {
+    const mappingValue = await getMappingValue(
+      process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+      "registered_tokens",
+      token_id,
+    );
+    if (mappingValue == null) {
+      return {
+        name: "?",
+        symbol: "?",
+      };
+    }
+    const token_data = JSON.parse(
+      formatAleoString(
+        mappingValue
+      )
+    );
+
+    token_data.name = bigIntToString(
+      BigInt(token_data.name.slice(0, -4))
+    );
+    token_data.symbol = bigIntToString(
+      BigInt(token_data.symbol.slice(0, -4))
+    );
+
+    return token_data;
+  } catch (e) {
+    return null;
   }
-  const token_data = JSON.parse(
-    formatAleoString(
-      mappingValue
-    )
-  );
-
-  token_data.name = bigIntToString(
-    BigInt(token_data.name.slice(0, -4))
-  );
-  token_data.symbol = bigIntToString(
-    BigInt(token_data.symbol.slice(0, -4))
-  );
-
-  return token_data;
 }
 
 

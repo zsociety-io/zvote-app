@@ -68,6 +68,8 @@ function App({ Component, pageProps }) {
       decryptPermission={DecryptPermission.OnChainHistory}
       programs={[
         process.env.NEXT_PUBLIC_CREDITS_PROGRAM_ID,
+        process.env.NEXT_PUBLIC_MTSP_PROGRAM_ID,
+        process.env.NEXT_PUBLIC_VS_2_CANDIDATES_PROGRAM_ID
       ]}
       autoConnect
     >
