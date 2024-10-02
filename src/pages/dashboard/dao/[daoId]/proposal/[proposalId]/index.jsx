@@ -45,7 +45,7 @@ export default function DashboardLayout({
         || proposal?.voting_system?.address
     );
     const {
-        setMainTokenId, mainTokenPublicBalance, mainTokenId, mainTokenPrivateBalance, tokenRecord, mainTokenData
+        setMainTokenId, mainTokenId, mainTokenPrivateBalance, tokenRecord, mainTokenData
     } = useAccount();
     const { requestTransaction, publicKey, connected, requestRecords } = useWallet();
     const canVote = mainTokenPrivateBalance > 0 && proposal.vote.result == null && !Boolean(proposal?.vote?.end?.ended);
@@ -55,6 +55,7 @@ export default function DashboardLayout({
         end: proposal?.vote?.end?.ended,
         canVote
     });
+
     useEffect(() => {
         setMainTokenId(proposal?.dao?.token_id)
     }, [proposal?.dao?.token_id]);
