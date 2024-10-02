@@ -6,6 +6,9 @@ import '../styles/globals.css'
 import '../styles/register.css'
 import '../styles/responsive.css'
 
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+
 import Script from 'next/script'
 import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
 

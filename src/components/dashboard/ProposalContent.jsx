@@ -9,15 +9,45 @@ import {
     Button,
 } from '@mui/material';
 
+import MDEditor from '@uiw/react-md-editor';
+
 
 export default function ProposalContent({ proposal, updateDaoParamsRef }) {
     return (<>
         {(proposal?.type === "daou") && <DaoUpdateContent proposal={proposal} updateDaoParamsRef={updateDaoParamsRef} />}
         {(proposal?.type === "vsu") && <VotingSystemUpdateContent proposal={proposal} />}
         {(proposal?.type === "psu") && <ProposersUpdateContent proposal={proposal} />}
+        {(proposal?.type === "default") && <DefaultContent proposal={proposal} />}
     </>
     );
 }
+
+
+function DefaultContent({ proposal }) {
+    return (<>
+        <style global jsx>{`
+                .MuiInputBase-input{
+                    padding: 8px !important;
+                }
+                .MuiTextField-root{
+                    width: 100%;
+                }
+            `}</style>
+        <h1
+            style={{
+                fontSize: "22px",
+                marginTop: "10px",
+                marginBottom: "20px"
+            }}
+        >
+        </h1>
+        <div data-color-mode="light">
+            <MDEditor.Markdown source={proposal.content.value} style={{ whiteSpace: 'pre-wrap' }} />
+        </div>
+    </>
+    );
+}
+
 
 function ProposersUpdateContent({ proposal }) {
     const isAdd = proposal?.content?.value?.is_add === "true";

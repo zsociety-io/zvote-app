@@ -1,6 +1,9 @@
 import { listProgramMappingValues, getStatus, getMappingValue, addressToProgramId } from "@/lib/aleo/aleoscan";
-import { formatAleoString, getUserBalance, getTokenData, hashStruct } from "@/lib/aleo";
+import { formatAleoString, getUserBalance, getTokenData, hashStruct, hashStructToAddress } from "@/lib/aleo";
 import { programIdToAddress } from "@/lib/aleo";
+import prettier from "prettier";
+import { stringToFieldList } from "@/lib/aleo/string"
+import { dynamodb_update, dynamodb_get } from "@/lib/externals/aws/dynamodb";
 
 
 export const getAddressDaos = async (publicKey) => {
@@ -197,8 +200,21 @@ export const getDaoVotingSystems = async (daoId) => {
 const getProposalContent = async (proposal) => {
   const contentProgramId = await addressToProgramId(proposal.content);
   if (contentProgramId == null) {
+    const saved_content = await dynamodb_get(
+      process.env.AWS_DYNAMO_DB_PROPOSAL_CONTENTS_TABLE,
+      { aleo_address: proposal.content },
+    );
+    if (saved_content === null) {
+      return {
+        value: proposal.content,
+        value_str: proposal.content,
+        program_id: null,
+        address: null
+      };
+    }
     return {
-      value: proposal.content,
+      value: saved_content.proposal_content,
+      value_str: saved_content.proposal_content,
       program_id: null,
       address: null
     };
@@ -212,6 +228,7 @@ const getProposalContent = async (proposal) => {
   try {
     value = JSON.parse(formatAleoString(value_str));
   } catch (e) { }
+
   return {
     program_id: contentProgramId,
     address: proposal.content,
@@ -411,4 +428,16 @@ export const loadAPLDao = async (dao) => {
     address: proposers_manager_address,
     program_id: await addressToProgramId(proposers_manager_address)
   };
+}
+
+
+export const referenceProposalContent = async (content) => {
+  const formated = await prettier.format(content, { parser: "markdown" });
+  const hash = hashStructToAddress(stringToFieldList(formated));
+  await dynamodb_update(
+    process.env.AWS_DYNAMO_DB_PROPOSAL_CONTENTS_TABLE,
+    { aleo_address: hash },
+    { proposal_content: formated }
+  );
+  return { formated, hash };
 }

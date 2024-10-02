@@ -155,7 +155,7 @@ export function ProposalsPage({ dao, setStatusFilter, statusFilter }) {
 
 
 
-export function ProposalsFilters({ statusFilter, setStatusFilter }) {
+export function ProposalsFilters({ statusFilter, setStatusFilter, userCanCreateProposals, onNewProposalClicked }) {
     return (
         <>
             <div className="flex gap-11 items-center">
@@ -194,16 +194,15 @@ export function ProposalsFilters({ statusFilter, setStatusFilter }) {
                     </button>
                 </div>
                 <div className="">
-                    {false && (
-                        <button type="button" onClick={() => {
-                        }}>
+                    {userCanCreateProposals && (
+                        <button type="button" onClick={onNewProposalClicked}>
                             <div className="text-[#0C0B3F] text-[12px] font-extrabold flex items-center gap-2 bg-white rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                                 <span className="text-[36px]">+</span>
-                                Add Voting System
+                                New proposal
                             </div>
                         </button>
                     )}
-                    {!false && (
+                    {!userCanCreateProposals && (
                         <div className="cursor-default text-[#858585] text-[12px] font-extrabold flex items-center gap-2 !bg-[#E5E6ED] rounded-[15px] px-3 py-2 border border-[#D5D5D5]">
                             <span className="text-[36px]">+</span>
                             New proposal

@@ -2663,3 +2663,13 @@ input.theme-btn-2 {
   margin-bottom: 20px;
   filter: invert(0.65);
 }
+
+
+.w-md-editor-text {
+  min-height: 100% !important;
+  padding: 0 !important;
+}
+
+.w-md-editor-area {
+  padding: 10px !important;
+}

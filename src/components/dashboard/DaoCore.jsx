@@ -36,7 +36,7 @@ const theme = createTheme({
 });
 
 
-const VotingSystemSelection = ({
+export const VotingSystemSelection = ({
     votingSystems,
     voteVS,
     setVoteVS,
@@ -73,7 +73,7 @@ const VotingSystemSelection = ({
                 )
             )}
         </TextField>
-        <FormLabel>Duration in blocks (1 block ~ 2.5s)</FormLabel>
+        <FormLabel>Vote duration (in blocks, 1 block ~ 2.5s)</FormLabel>
         <TextField
             label="ie: 1500 for an hour"
             variant="outlined"
@@ -467,7 +467,6 @@ export function DaoCorePage({ dao }) {
     const [isVSModalOpen, setIsVSModalOpen] = useState(false);  // Modal state
     const [isProposerModalOpen, setIsProposerModalOpen] = useState(false);  // Modal state
     const [isDaoModalOpen, setIsDaoModalOpen] = useState(false);
-
 
     const userIsProposersAdmin = daoSettings?.proposersAdmin === publicKey && publicKey != null;
     const userCanAddProposers = publicKey != null && (userIsProposersAdmin || daoSettings?.proposersUpdater === "vote");

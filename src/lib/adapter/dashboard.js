@@ -128,6 +128,62 @@ export const createApproveProposerProposal = async (
 }
 
 
+export const createDefaultProposal = async (
+  publicKey,
+  requestBulkTransactions,
+  daoManager,
+  dao_id,
+  proposalHash,
+  voting_system,
+  vs_params_hash,
+  proposalBlocks
+) => {
+  const programId = daoManager;
+  const functionName = 'create_proposal';
+  const fee = 1_000_000;
+
+  const proposal_id = random_from_type("field");
+
+  const [proposalParamsHash, proposalParamsTx] = await getProposalParamsTx(
+    publicKey,
+    voting_system.program_id,
+    proposalBlocks
+  );
+
+  const parsedInputs = [
+    dao_id,
+    proposal_id,
+    proposalHash,
+    proposalParamsHash,
+    voting_system.address,
+    vs_params_hash
+  ];
+
+  console.log({
+    parsedInputs
+  })
+
+  const createTransaction = Transaction.createTransaction(
+    publicKey,
+    WalletAdapterNetwork.TestnetBeta,
+    programId,
+    functionName,
+    parsedInputs,
+    fee,
+    false
+  );
+
+  const transactions = [
+    createTransaction,
+  ];
+  if (proposalParamsTx) {
+    transactions.push(proposalParamsTx)
+  }
+
+  await requestBulkTransactions(transactions);
+}
+
+
 
 export const addVotingSystem = async (
   publicKey,

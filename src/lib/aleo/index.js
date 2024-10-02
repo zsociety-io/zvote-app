@@ -30,6 +30,14 @@ export const hashStruct = (toHash) => {
   ).hashBhp256();
 };
 
+export const hashStructToAddress = (toHash) => {
+  return Plaintext.fromString(
+    snarkvmNetworks?.[process.env.NEXT_PUBLIC_NETWORK],
+    toHash
+  ).hashBhp256ToAddress();
+};
+
+
 
 export const getUserBalance = async (token_id, publicKey) => {
   try {

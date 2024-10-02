@@ -20,9 +20,21 @@ snarkos developer execute \
   token_registry.aleo \
   transfer_public_to_private \
   3443843282313283355522573239085696902919850365217539366784739393210722344986field \
-  aleo1wamjqlka7d0gazlxdys6n8e8zeee3ymedwvw8elvh7529kwd45rq0plgax \
+  aleo16xfyc9065arfx97cuh7kh0sh53s65lkcaz6j38zfd38amny5g59qvm2uyl \
   10_000_000u128 \
   false
+
+
+  snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --broadcast "$NODE_URL/testnet/transaction/broadcast" \
+  --network 1 \
+  token_registry.aleo \
+  transfer_public \
+  3443843282313283355522573239085696902919850365217539366784739393210722344986field \
+  aleo16xfyc9065arfx97cuh7kh0sh53s65lkcaz6j38zfd38amny5g59qvm2uyl \
+  10_000_000u128 
 
 
 

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useState, useRef } from "react";
-import { ProposalsPage, ProposalsFilters } from "@/components/dashboard/Proposals";
 import { DaoCorePage, } from "@/components/dashboard/DaoCore";
 import { useTailwindLayout } from "@/hooks/useTailwindLayout"
 import { TextField } from '@mui/material';
@@ -49,7 +48,13 @@ export default function DashboardLayout({
         setMainTokenId, mainTokenPublicBalance, mainTokenId, mainTokenPrivateBalance, tokenRecord, mainTokenData
     } = useAccount();
     const { requestTransaction, publicKey, connected, requestRecords } = useWallet();
-    const canVote = mainTokenPrivateBalance > 0 && proposal.vote.result == null && proposal?.vote?.end?.ended == null;
+    const canVote = mainTokenPrivateBalance > 0 && proposal.vote.result == null && !Boolean(proposal?.vote?.end?.ended);
+    console.log({
+        mainTokenPrivateBalance,
+        res: proposal.vote.result,
+        end: proposal?.vote?.end?.ended,
+        canVote
+    });
     useEffect(() => {
         setMainTokenId(proposal?.dao?.token_id)
     }, [proposal?.dao?.token_id]);

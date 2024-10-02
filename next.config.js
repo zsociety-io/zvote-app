@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 
+const withTM = require('next-transpile-modules')
+const WithTM = withTM(['@uiw/react-md-editor', '@uiw/react-markdown-preview'])
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -20,4 +23,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = WithTM(nextConfig);
