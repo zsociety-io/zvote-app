@@ -14,7 +14,7 @@ function Footer() {
                             <a href="/#contact_sec">Contact</a>
                             <a thref="/#our_vision">About</a>
                         </div>
-                        <div class="copyright">Copyright © 2022 <a style={{ color: "black", fontWeight: "bold" }} href="https://zsolutions.io">zSolutions.io</a></div>
+                        <div class="copyright">Copyright © 2022 <a style={{ color: "black", fontWeight: "bold" }} href="https://zsociety.io">zSolutions.io</a></div>
                     </div>
                 </div>
             </div>

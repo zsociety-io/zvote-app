@@ -112,7 +112,7 @@ function Home() {
               <h1>From <a target="__blank" style={{
                 color: "rgb(10, 9, 61)",
                 textDecoration: "underline"
-              }} href="https://zsolutions.io">zSolutions.io</a> suite</h1>
+              }} href="https://zsociety.io">zSolutions.io</a> suite</h1>
               <p>We build <strong>ZK applications and tools</strong> on Aleo <strong>to get the best</strong> to their questions <strong>at any time</strong>. We are
                 always reachable on <strong>discord</strong> or <strong>twitter</strong> for any issue or question of any kind. </p>
               <a target="__blank" className="theme-btn-2" href="https://github.com/zsolutions-io/zvote">Open Github</a>
