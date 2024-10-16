@@ -49,7 +49,7 @@ export const AccountProvider = ({ children }) => {
         try {
             await connect(
                 decryptPermission || "NO_DECRYPT",
-                network || (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
+                network || (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : WalletAdapterNetwork.TestnetBeta),
                 programs ?? []
             );
         } catch (e) {

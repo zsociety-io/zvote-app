@@ -45,7 +45,7 @@ export const createDao = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -58,7 +58,7 @@ export const createDao = async (
   const feeReferenceParamsTransaction = 1_000_000;
   const referenceParamsTransaction = Transaction.createTransaction(
     publicKey,
-    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : WalletAdapterNetwork.TestnetBeta),
     voting_system_program_id,
     "reference_voting_system_params",
     [voting_system_params],
