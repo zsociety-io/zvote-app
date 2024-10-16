@@ -67,7 +67,7 @@ function App({ Component, pageProps }) {
   return <>
     <WalletProvider
       wallets={wallets}
-      network={WalletAdapterNetwork.TestnetBeta}
+      network={(process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta)}
       decryptPermission={DecryptPermission.OnChainHistory}
       programs={[
         process.env.NEXT_PUBLIC_CREDITS_PROGRAM_ID,

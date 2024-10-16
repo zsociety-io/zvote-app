@@ -57,3 +57,30 @@ snarkos developer execute \
   1173200000u64 
 
 
+
+aleo1dsmwmtm80fxl3jef5yenfzlze9kg0ugg5r3kzqjzk0c4pg4epyfqmff4zh
+
+
+snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --broadcast "$NODE_URL/testnet/transaction/broadcast" \
+  --network 1 \
+  zsociety_token_v2.aleo \
+  transfer_public_as_signer \
+  aleo1dsmwmtm80fxl3jef5yenfzlze9kg0ugg5r3kzqjzk0c4pg4epyfqmff4zh \
+  1_000_000_231u128
+
+
+
+snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --broadcast "$NODE_URL/testnet/transaction/broadcast" \
+  --network 1 \
+  zsociety_token_v2.aleo \
+  withdraw_income_as_signer \
+  1271197u64
+
+
+withdraw_income_as_signer

@@ -29,7 +29,7 @@ export const getProposalParamsTx = async (
 
   const proposalParamsTx = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -61,7 +61,7 @@ export const addApprovedProposer = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -109,7 +109,7 @@ export const createApproveProposerProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -165,7 +165,7 @@ export const createDefaultProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -208,7 +208,7 @@ export const addVotingSystem = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -224,7 +224,7 @@ export const addVotingSystem = async (
     const voting_system_program_id = await addressToProgramId(voting_system);
     const referenceParamsTransaction = Transaction.createTransaction(
       publicKey,
-      WalletAdapterNetwork.TestnetBeta,
+      (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
       voting_system_program_id,
       "reference_voting_system_params",
       [inputVSParams],
@@ -286,7 +286,7 @@ export const createVotingSystemProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -304,7 +304,7 @@ export const createVotingSystemProposal = async (
     const feeReferenceParamsTransaction = 1_000_000;
     const referenceParamsTransaction = Transaction.createTransaction(
       publicKey,
-      WalletAdapterNetwork.TestnetBeta,
+      (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
       voting_system.program_id,
       "reference_voting_system_params",
       [inputVSParams],
@@ -362,7 +362,7 @@ export const updateDaoManager = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -431,7 +431,7 @@ export const createDaoUpdateProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -481,7 +481,7 @@ export const castVote = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -516,7 +516,7 @@ export const withdrawReceipt = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -550,7 +550,7 @@ export const setResult = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -614,7 +614,7 @@ export const applyPsUpdateProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -648,7 +648,7 @@ export const applyVsUpdateProposal = async (
 
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,
@@ -700,7 +700,7 @@ export const applyDaoUpdateProposal = async (
   console.log({ parsedInputs, functionName })
   const createTransaction = Transaction.createTransaction(
     publicKey,
-    WalletAdapterNetwork.TestnetBeta,
+    (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
     programId,
     functionName,
     parsedInputs,

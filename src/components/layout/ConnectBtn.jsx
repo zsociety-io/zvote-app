@@ -153,7 +153,7 @@ function ConnectBtn(props) {
         if (wallet && refConnectClicked.current) {
             connect(
                 decryptPermission || "NO_DECRYPT",
-                network || WalletAdapterNetwork.TestnetBeta,
+                network || (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? WalletAdapterNetwork.Mainnet : WalletAdapterNetwork.TestnetBeta),
                 programs ?? []
             );
             setConnectClicked(false);
