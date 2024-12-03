@@ -505,7 +505,7 @@ export const withdrawReceipt = async (
 ) => {
   const programId = votingSystemProgramId;
   const functionName = `withdraw_receipt`;
-  const fee = 1_000_000;
+  const fee = 89_998;
 
 
   let parsedInputs = [
