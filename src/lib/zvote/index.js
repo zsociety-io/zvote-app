@@ -94,9 +94,11 @@ const getVotingSystem = async (voting_system) => {
         voting_system.params_hash,
       );
   }
+  console.log(voting_system.params_hash)
   const params_str = cachedHashToParams?.[voting_system.params_hash];
+  console.log("params_str", params_str)
 
-  const params = JSON.parse(formatAleoString(params_str));
+  const params = params_str ? JSON.parse(formatAleoString(params_str)) : {};
   delete voting_system.dao_id;
   return {
     ...voting_system,

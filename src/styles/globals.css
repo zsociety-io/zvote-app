@@ -2487,6 +2487,12 @@ body.copying * {
   filter: invert(0.65);
 }
 
+.loading_profile_gif_verify {
+  filter: invert(0.65);
+  height: 100px;
+  width: 30px;
+}
+
 .copyInput button {
   border: none;
   background-color: transparent;

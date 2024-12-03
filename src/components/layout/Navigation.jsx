@@ -8,6 +8,10 @@ import { useRouter } from 'next/router';
 
 function Navigation({ }) {
   const router = useRouter();
+
+  const noNavPaths = ['/verify'];
+  const hideNav = noNavPaths.some((path) => router.pathname.startsWith(path));
+
   const noLayoutPaths = ['/dashboard'];
   const hideLayout = noLayoutPaths.some((path) => router.pathname.startsWith(path));
 
@@ -49,7 +53,7 @@ function Navigation({ }) {
 
 
   return (
-    <header className="header-area">
+    !hideNav && (<header className="header-area">
       <nav className="navbar navbar-expand-lg sticky-menu">
         <div className="container">
           <Link className="navbar-brand" href="/#">
@@ -131,7 +135,7 @@ function Navigation({ }) {
           <ConnectButton />
         </div>
       </nav>
-    </header>
+    </header>)
   );
 }
 

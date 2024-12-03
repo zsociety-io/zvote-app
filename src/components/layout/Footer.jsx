@@ -1,10 +1,14 @@
 import React from "react";
-
 import Image from "next/image";
+import { useRouter } from 'next/router';
 
 function Footer() {
+    const router = useRouter();
+    const noNavPaths = ['/verify'];
+    const hideNav = noNavPaths.some((path) => router.pathname.startsWith(path));
+
     return (
-        <footer>
+        (!hideNav && <footer>
             <div class="container">
                 <div class="footer-top">
                     <a href="/" ><Image className="img-fluid" src={require("../../img/footer-logo.svg").default} alt="footer_logo" /></a>
@@ -18,7 +22,7 @@ function Footer() {
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer>)
     );
 }
 

@@ -96,12 +96,20 @@ const NoDAOsMessage = styled.p`
   margin-top: 50px;
   font-family: 'Open Sans', sans-serif;
 `;
+
+let daosLoading = false;
+
+
 const DAOsList = () => {
   const { requestTransaction, publicKey } = useWallet();
   const [daos, setDaos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadDaos = async () => {
+    if (daosLoading) {
+      return;
+    }
+    daosLoading = true;
     try {
       const newDaos = await get_request(`/api/contract/daos/${publicKey}`);
       setDaos(newDaos);
@@ -110,10 +118,12 @@ const DAOsList = () => {
     } finally {
       setIsLoading(false); // Set loading to false after data is fetched
     }
+    daosLoading = false;
   };
 
   useEffect(() => {
     if (publicKey != null) {
+
       loadDaos();
     }
   }, [publicKey]);

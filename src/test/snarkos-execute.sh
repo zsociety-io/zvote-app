@@ -83,4 +83,63 @@ snarkos developer execute \
   1271197u64
 
 
-withdraw_income_as_signer
+
+snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --broadcast "$NODE_URL/testnet/transaction/broadcast" \
+  --network 1 \
+  airdrop_15_arc21.aleo \
+  airdrop_15_addresses \
+  "[ \
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t,\
+    aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t\
+  ]" \
+
+
+
+snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --broadcast "$NODE_URL/testnet/transaction/broadcast" \
+  --network 1 \
+  token_registry.aleo \
+  transfer_public_to_private \
+  "666field" \
+  aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t \
+  1000u128 \
+  false
+
+
+snarkos developer execute \
+  --private-key $PRIVATE_KEY \
+  --query $NODE_URL \
+  --dry-run \
+  --network 1 \
+  token_registry.aleo \
+  transfer_private \
+  aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t \
+  10u128 \
+  "{ \
+  owner: aleo1wamjqlka7d0gazlxdys6n8e8zeee3ymedwvw8elvh7529kwd45rq0plgax.private, \
+  amount: 5000000u128.private, \
+  token_id: 3443843282313283355522573239085696902919850365217539366784739393210722344986field.private, \
+  external_authorization_required: false.private, \
+  authorized_until: 4294967295u32.private, \
+  _nonce: 2980861383460876823309624635364132236542994890709569317101693782916839614559group.public \
+  }"
+
+

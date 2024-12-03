@@ -16,9 +16,7 @@ export const listProgramMappingValues = async (
     );
     const page = await (await fetch(url)).json();
     if (page.result != null) {
-      result = result.concat(
-        page.result
-      );
+      result = result.concat(page.result);
     }
     if (!page?.result || !page.result?.length) {
       return result;
@@ -38,7 +36,8 @@ export const getMappingValue = async (
       `${process.env.NEXT_PUBLIC_ALEOSCAN_API_URL}/mapping/get_value/`
       + `${programId}/${mappingId}/${key}`
     );
-    return await (await fetch(url)).json();
+    const resp = await (await fetch(url)).json()
+    return resp === "None" ? null : resp;
   } catch (e) {
     return null;
   }
