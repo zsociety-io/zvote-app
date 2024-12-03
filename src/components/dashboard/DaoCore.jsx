@@ -732,7 +732,7 @@ export function DaoCorePage({ dao }) {
                                     (voting_system, index) => {
                                         return <TableItem
                                             paramsStr={voting_system?.params_str}
-                                            name={voting_system.program_id}
+                                            name={voting_system.program_id || voting_system.address}
                                             index={index}
                                             canTrash={userCanAddVs}
                                             onTrashClicked={

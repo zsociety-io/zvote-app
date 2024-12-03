@@ -86,7 +86,10 @@ const getVotingSystem = async (voting_system) => {
   }
   const program_id = cachedAddressToProgramId?.[address];
 
-  if (cachedHashToParams?.[voting_system.params_hash] == null) {
+  if (
+    cachedHashToParams?.[voting_system.params_hash] == null
+    && program_id != null
+  ) {
     cachedHashToParams[voting_system.params_hash] =
       await getMappingValue(
         program_id,
@@ -94,9 +97,7 @@ const getVotingSystem = async (voting_system) => {
         voting_system.params_hash,
       );
   }
-  console.log(voting_system.params_hash)
-  const params_str = cachedHashToParams?.[voting_system.params_hash];
-  console.log("params_str", params_str)
+  const params_str = cachedHashToParams?.[voting_system.params_hash] || null;
 
   const params = params_str ? JSON.parse(formatAleoString(params_str)) : {};
   delete voting_system.dao_id;
