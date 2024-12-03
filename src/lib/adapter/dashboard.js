@@ -360,6 +360,7 @@ export const updateDaoManager = async (
     parsedInputs.push(proposersManager)
   }
 
+  console.log({ programId, parsedInputs });
   const createTransaction = Transaction.createTransaction(
     publicKey,
     (process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : WalletAdapterNetwork.TestnetBeta),
@@ -465,7 +466,7 @@ export const castVote = async (
 ) => {
   const programId = votingSystemProgramId;
   const functionName = `cast_vote`;
-  const fee = 1_000_000;
+  const fee = 154_800;
 
   const candidate = forVote ? "1field" : "0field";
 
